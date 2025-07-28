@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Codebase Error Summarizer",
+  "description": "Automatically scans the codebase to identify frequent or serious error patterns including undefined variables, invalid API calls, and insecure code. Provides actionable suggestions for resolving critical issues that could break functionality or affect security.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "frontend/src/**/*.ts",
+      "frontend/src/**/*.tsx",
+      "backend/src/**/*.ts",
+      "*.js",
+      "*.json",
+      "package.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Scan the current codebase and identify the most frequent or serious error patterns (ex: undefined variables, invalid API calls, insecure code). Summarize the errors and provide actionable suggestions for resolving them. Prioritize critical issues that could break functionality or affect security. Focus on TypeScript/React frontend code, Node.js/Express backend code, and configuration files. Look for common issues like: missing error handling, unvalidated inputs, insecure file operations, missing type definitions, improper async/await usage, CORS misconfigurations, and API security vulnerabilities."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "name": "Auto Code Fixer",
+  "description": "Automatically detects and fixes syntax errors, linting issues, and common runtime problems when code files are saved",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.json",
+      "**/*.css",
+      "**/*.scss",
+      "**/*.html"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You are a code assistant. The user just saved a file. Please analyze the saved file for any errors including:\n\n1. Syntax errors (missing semicolons, brackets, quotes, etc.)\n2. Linting issues (unused variables, incorrect imports, formatting)\n3. Common runtime issues (null/undefined access, type mismatches, etc.)\n\nIf you find errors that are safe to fix automatically, make the changes directly to the file. For complex issues where you're unsure of the intended behavior, add a comment with your suggested fix instead of changing the code.\n\nKeep the existing code formatting and style consistent. Only modify the saved file that triggered this hook.\n\nFocus on:\n- TypeScript/JavaScript files: syntax, imports, type issues\n- React components: prop types, hook usage, JSX syntax\n- CSS files: syntax, property names\n- JSON files: valid JSON structure\n- HTML files: tag closure, attribute syntax\n\nBe conservative - only make changes you're confident about."
+  }
+}

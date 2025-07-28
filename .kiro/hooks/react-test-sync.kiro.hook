@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "React Component Test Sync",
+  "description": "Automatically creates or updates test files when React component files are saved",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "frontend/src/components/*.tsx",
+      "frontend/src/components/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A React component file has been modified. Please create or update the corresponding test file for this component. The test file should follow the project's testing conventions with proper imports, describe blocks, and test cases for the component's main functionality. Place the test file in the appropriate __tests__ directory structure."
+  }
+}

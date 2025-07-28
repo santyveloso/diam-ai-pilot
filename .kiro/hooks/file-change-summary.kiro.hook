@@ -1,0 +1,40 @@
+{
+  "enabled": true,
+  "name": "File Change Summarizer",
+  "description": "Automatically generates a summary of changes made to files since the last save, highlighting additions, removals, modifications, logic changes, data flow updates, and new features",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.py",
+      "**/*.java",
+      "**/*.cpp",
+      "**/*.c",
+      "**/*.cs",
+      "**/*.go",
+      "**/*.rs",
+      "**/*.php",
+      "**/*.rb",
+      "**/*.swift",
+      "**/*.kt",
+      "**/*.scala",
+      "**/*.md",
+      "**/*.json",
+      "**/*.yaml",
+      "**/*.yml",
+      "**/*.xml",
+      "**/*.html",
+      "**/*.css",
+      "**/*.scss",
+      "**/*.sass"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Summarize the changes made to this file since the last save. Include what was added, removed, or modified. Highlight any logic changes, data flow updates, or new features. If applicable, describe the impact on the application and any follow-up actions needed."
+  }
+}
