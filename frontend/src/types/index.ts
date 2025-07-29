@@ -16,12 +16,44 @@ export interface ErrorResponse {
     code: string;
     message: string;
     details?: any;
+    timestamp?: string;
+    requestId?: string;
   };
+}
+
+// Enhanced error types for better error handling
+export interface NetworkError extends Error {
+  code?: string;
+  response?: {
+    status: number;
+    data?: ErrorResponse;
+  };
+  request?: any;
+}
+
+export interface ValidationError extends Error {
+  field?: string;
+  value?: any;
+}
+
+// Error severity levels
+export type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
+
+export interface EnhancedError {
+  code: string;
+  message: string;
+  severity: ErrorSeverity;
+  userMessage: {
+    en: string;
+    pt: string;
+  };
+  retryable: boolean;
+  timestamp: string;
 }
 
 // Component Props Types
 export interface FileUploadProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File | null) => void;
   selectedFile: File | null;
   isUploading: boolean;
 }

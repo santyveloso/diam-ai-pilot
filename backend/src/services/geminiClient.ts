@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AIResponse, QuestionContext } from '../types';
+import { ErrorService } from './errorService';
 
 export class GeminiClient {
   private genAI: GoogleGenerativeAI;
@@ -8,7 +9,8 @@ export class GeminiClient {
   constructor(apiKey?: string) {
     const key = apiKey || process.env.GEMINI_API_KEY;
     if (!key) {
-      throw new Error('Gemini API key is required. Set GEMINI_API_KEY environment variable.');
+      throw ErrorService.createError('API_CONFIGURATION_ERROR', 
+        'Gemini API key is required. Set GEMINI_API_KEY environment variable.');
     }
 
     this.genAI = new GoogleGenerativeAI(key);
@@ -96,11 +98,11 @@ RESPONSE:`
     try {
       // Validate input
       if (!context.question.trim()) {
-        throw new Error('Question cannot be empty');
+        throw ErrorService.createError('MISSING_QUESTION', 'Question cannot be empty');
       }
 
       if (!context.documentContent.trim()) {
-        throw new Error('Document content cannot be empty');
+        throw ErrorService.createError('INVALID_CONTENT', 'Document content cannot be empty');
       }
 
       // Construct the prompt
@@ -112,7 +114,7 @@ RESPONSE:`
       const text = response.text();
 
       if (!text || text.trim().length === 0) {
-        throw new Error('Empty response from AI model');
+        throw ErrorService.createError('AI_GENERATION_ERROR', 'Empty response from AI model');
       }
 
       const processingTime = Date.now() - startTime;
@@ -127,22 +129,31 @@ RESPONSE:`
     } catch (error) {
       const processingTime = Date.now() - startTime;
 
-      if (error instanceof Error) {
-        // Handle specific API errors
-        if (error.message.includes('API_KEY')) {
-          throw new Error('Invalid or missing API key');
-        }
-        if (error.message.includes('RATE_LIMIT')) {
-          throw new Error('API rate limit exceeded. Please try again later.');
-        }
-        if (error.message.includes('QUOTA')) {
-          throw new Error('API quota exceeded. Please try again later.');
-        }
-        
-        throw new Error(`AI generation failed: ${error.message}`);
+      // If it's already a service error, re-throw it
+      if (ErrorService.isServiceError(error)) {
+        throw error;
       }
 
-      throw new Error(`AI generation failed: Unknown error (Processing time: ${processingTime}ms)`);
+      if (error instanceof Error) {
+        // Handle specific API errors
+        if (error.message.includes('API_KEY') || error.message.includes('Invalid API key')) {
+          throw ErrorService.createError('API_CONFIGURATION_ERROR', 'Invalid or missing API key');
+        }
+        if (error.message.includes('RATE_LIMIT') || error.message.includes('rate limit')) {
+          throw ErrorService.createError('RATE_LIMIT_EXCEEDED', 'API rate limit exceeded. Please try again later.');
+        }
+        if (error.message.includes('QUOTA') || error.message.includes('quota')) {
+          throw ErrorService.createError('RATE_LIMIT_EXCEEDED', 'API quota exceeded. Please try again later.');
+        }
+        if (error.message.includes('timeout') || error.message.includes('TIMEOUT')) {
+          throw ErrorService.createError('AI_GENERATION_ERROR', 'AI request timeout. Please try again.');
+        }
+        
+        throw ErrorService.createError('AI_GENERATION_ERROR', `AI generation failed: ${error.message}`);
+      }
+
+      throw ErrorService.createError('AI_GENERATION_ERROR', 
+        `AI generation failed: Unknown error (Processing time: ${processingTime}ms)`);
     }
   }
 

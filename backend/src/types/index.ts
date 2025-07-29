@@ -15,7 +15,32 @@ export interface ErrorResponse {
     code: string;
     message: string;
     details?: any;
+    timestamp?: string;
+    requestId?: string;
   };
+}
+
+// Enhanced error types for better error handling
+export interface ServiceError extends Error {
+  code: string;
+  statusCode: number;
+  userMessage?: {
+    en: string;
+    pt: string;
+  };
+  retryable?: boolean;
+  details?: any;
+}
+
+// Error severity levels
+export type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
+
+export interface ErrorContext {
+  requestId: string;
+  timestamp: string;
+  userAgent?: string;
+  ip?: string;
+  endpoint?: string;
 }
 
 // File Processing Types

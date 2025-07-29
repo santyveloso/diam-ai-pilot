@@ -2,6 +2,7 @@ import express from 'express';
 import { corsMiddleware } from './middleware/cors';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { handleMulterError } from './middleware/upload';
+import apiRoutes from './routes/api';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,8 +30,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes will be added here
-// app.use('/api', apiRoutes);
+// API routes
+app.use('/api', apiRoutes);
 
 // Multer error handling middleware
 app.use(handleMulterError);

@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import { ProcessedFile } from '../types';
+import { ErrorService } from './errorService';
 
 // Dynamic import for pdf-parse to avoid test issues
 const pdfParse = require('pdf-parse');
@@ -14,17 +15,20 @@ export class PDFProcessor {
   static validateFile(file: Express.Multer.File): void {
     // Check file size
     if (file.size > this.MAX_FILE_SIZE) {
-      throw new Error(`File size ${file.size} exceeds maximum allowed size of ${this.MAX_FILE_SIZE} bytes`);
+      throw ErrorService.createError('FILE_TOO_LARGE', 
+        `File size ${file.size} exceeds maximum allowed size of ${this.MAX_FILE_SIZE} bytes`);
     }
 
     // Check MIME type
     if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      throw new Error(`Invalid file type: ${file.mimetype}. Only PDF files are allowed.`);
+      throw ErrorService.createError('INVALID_FILE_TYPE', 
+        `Invalid file type: ${file.mimetype}. Only PDF files are allowed.`);
     }
 
     // Check file extension
     if (!file.originalname.toLowerCase().endsWith('.pdf')) {
-      throw new Error('File must have .pdf extension');
+      throw ErrorService.createError('INVALID_FILE_TYPE', 
+        'File must have .pdf extension');
     }
   }
 
@@ -40,15 +44,23 @@ export class PDFProcessor {
       const pdfData = await pdfParse(dataBuffer);
       
       if (!pdfData.text || pdfData.text.trim().length === 0) {
-        throw new Error('No text content found in PDF file');
+        throw ErrorService.createError('PDF_PROCESSING_ERROR', 
+          'No text content found in PDF file');
       }
 
       return pdfData.text.trim();
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to extract text from PDF: ${error.message}`);
+      if (ErrorService.isServiceError(error)) {
+        throw error;
       }
-      throw new Error('Failed to extract text from PDF: Unknown error');
+      
+      if (error instanceof Error) {
+        throw ErrorService.createError('PDF_PROCESSING_ERROR', 
+          `Failed to extract text from PDF: ${error.message}`);
+      }
+      
+      throw ErrorService.createError('PDF_PROCESSING_ERROR', 
+        'Failed to extract text from PDF: Unknown error');
     }
   }
 
@@ -99,11 +111,13 @@ export class PDFProcessor {
     const maxLength = 1000000; // Maximum 1MB of text
 
     if (text.length < minLength) {
-      throw new Error(`Text content too short. Minimum ${minLength} characters required.`);
+      throw ErrorService.createError('INVALID_CONTENT', 
+        `Text content too short. Minimum ${minLength} characters required.`);
     }
 
     if (text.length > maxLength) {
-      throw new Error(`Text content too long. Maximum ${maxLength} characters allowed.`);
+      throw ErrorService.createError('INVALID_CONTENT', 
+        `Text content too long. Maximum ${maxLength} characters allowed.`);
     }
 
     // Check if text contains mostly readable characters
@@ -111,7 +125,8 @@ export class PDFProcessor {
     const readableRatio = readableChars ? readableChars.length / text.length : 0;
 
     if (readableRatio < 0.7) {
-      throw new Error('PDF appears to contain mostly non-readable content. Please ensure the PDF contains extractable text.');
+      throw ErrorService.createError('PDF_PROCESSING_ERROR', 
+        'PDF appears to contain mostly non-readable content. Please ensure the PDF contains extractable text.');
     }
   }
 }

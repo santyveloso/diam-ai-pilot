@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ErrorResponse } from '../types';
+import { ErrorService } from '../services/errorService';
 
 // Global error handler middleware
 export const errorHandler = (
@@ -8,41 +8,79 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error('Error:', error);
+  // Create error context
+  const context = ErrorService.createErrorContext(req);
+  
+  // Detect language preference
+  const language = ErrorService.detectLanguage(req);
+  
+  // Log the error
+  ErrorService.logError(error, context, {
+    body: req.body,
+    params: req.params,
+    query: req.query
+  });
 
-  // Default error response
-  const errorResponse: ErrorResponse = {
-    success: false,
-    error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'An unexpected error occurred'
-    }
-  };
-
-  // Handle specific error types
-  if (error.name === 'ValidationError') {
-    errorResponse.error.code = 'VALIDATION_ERROR';
-    errorResponse.error.message = error.message;
-    return res.status(400).json(errorResponse);
+  // Handle Multer errors (file upload errors)
+  if (error.code === 'LIMIT_FILE_SIZE') {
+    const serviceError = ErrorService.createError('FILE_TOO_LARGE');
+    const errorResponse = ErrorService.formatErrorResponse(serviceError, context, language);
+    return res.status(serviceError.statusCode).json(errorResponse);
   }
 
+  if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+    const serviceError = ErrorService.createError('INVALID_FILE_TYPE', 'Unexpected file field');
+    const errorResponse = ErrorService.formatErrorResponse(serviceError, context, language);
+    return res.status(serviceError.statusCode).json(errorResponse);
+  }
+
+  // Handle service errors
+  if (ErrorService.isServiceError(error)) {
+    const errorResponse = ErrorService.formatErrorResponse(error, context, language);
+    return res.status(error.statusCode).json(errorResponse);
+  }
+
+  // Handle specific Node.js errors
   if (error.code === 'ENOENT') {
-    errorResponse.error.code = 'FILE_NOT_FOUND';
-    errorResponse.error.message = 'File not found';
-    return res.status(404).json(errorResponse);
+    const serviceError = ErrorService.createError('NOT_FOUND', 'File not found');
+    const errorResponse = ErrorService.formatErrorResponse(serviceError, context, language);
+    return res.status(serviceError.statusCode).json(errorResponse);
   }
 
-  // Send generic error response
-  res.status(500).json(errorResponse);
+  if (error.name === 'ValidationError') {
+    const serviceError = ErrorService.createError('VALIDATION_ERROR', error.message);
+    const errorResponse = ErrorService.formatErrorResponse(serviceError, context, language);
+    return res.status(serviceError.statusCode).json(errorResponse);
+  }
+
+  // Handle timeout errors
+  if (error.code === 'ETIMEDOUT' || error.message.includes('timeout')) {
+    const serviceError = ErrorService.createError('AI_GENERATION_ERROR', 'Request timeout');
+    const errorResponse = ErrorService.formatErrorResponse(serviceError, context, language);
+    return res.status(serviceError.statusCode).json(errorResponse);
+  }
+
+  // Default to internal server error
+  const serviceError = ErrorService.createError('INTERNAL_SERVER_ERROR', error.message);
+  const errorResponse = ErrorService.formatErrorResponse(serviceError, context, language);
+  res.status(serviceError.statusCode).json(errorResponse);
 };
 
 // 404 handler for undefined routes
 export const notFoundHandler = (req: Request, res: Response) => {
-  res.status(404).json({
-    success: false,
-    error: {
-      code: 'NOT_FOUND',
-      message: `Route ${req.method} ${req.path} not found`
-    }
-  });
+  const context = ErrorService.createErrorContext(req);
+  const language = ErrorService.detectLanguage(req);
+  const serviceError = ErrorService.createError('NOT_FOUND', `Route ${req.method} ${req.path} not found`);
+  const errorResponse = ErrorService.formatErrorResponse(serviceError, context, language);
+  
+  res.status(serviceError.statusCode).json(errorResponse);
+};
+
+// Multer error handler middleware
+export const handleMulterError = (error: any, req: Request, res: Response, next: NextFunction) => {
+  if (error) {
+    // Pass Multer errors to the main error handler
+    return errorHandler(error, req, res, next);
+  }
+  next();
 };

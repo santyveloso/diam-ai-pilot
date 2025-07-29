@@ -8,5 +8,11 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/__tests__/**'
   ],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts']
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(uuid)/)'
+  ],
+  moduleNameMapper: {
+    '^uuid$': require.resolve('uuid')
+  }
 };

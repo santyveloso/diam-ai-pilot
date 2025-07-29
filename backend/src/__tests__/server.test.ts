@@ -1,4 +1,14 @@
 import request from 'supertest';
+
+// Mock the Gemini client to avoid API key issues in tests
+jest.mock('../services/geminiClient', () => {
+  return {
+    GeminiClient: jest.fn().mockImplementation(() => ({
+      healthCheck: jest.fn().mockResolvedValue(true)
+    }))
+  };
+});
+
 import app from '../server';
 
 describe('Express Server', () => {
@@ -37,7 +47,9 @@ describe('Express Server', () => {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: 'Route GET /nonexistent not found'
+          message: 'The requested resource was not found.',
+          requestId: expect.any(String),
+          timestamp: expect.any(String)
         }
       });
     });
