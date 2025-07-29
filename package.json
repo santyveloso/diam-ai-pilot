@@ -5,14 +5,22 @@
   "scripts": {
     "dev:frontend": "cd frontend && npm start",
     "dev:backend": "cd backend && npm run dev",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:all": "concurrently --kill-others-on-fail --prefix=\"[{name}]\" --names=\"backend,frontend\" \"npm run dev:backend\" \"npm run dev:frontend\"",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
     "build": "npm run build:backend && npm run build:frontend",
+    "build:prod": "NODE_ENV=production npm run build",
     "test:frontend": "cd frontend && npm test",
     "test:backend": "cd backend && npm test",
     "test": "npm run test:backend && npm run test:frontend",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+    "test:watch": "concurrently --kill-others-on-fail \"cd backend && npm run test:watch\" \"cd frontend && npm run test:watch\"",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "clean": "rm -rf frontend/build backend/dist",
+    "clean:all": "npm run clean && rm -rf node_modules frontend/node_modules backend/node_modules",
+    "lint": "cd frontend && npm run lint && cd ../backend && npm run lint",
+    "start:prod": "cd backend && npm start",
+    "perf:test": "node scripts/performance-test.js",
+    "perf:backend": "cd backend && npm run test -- --testNamePattern=\"Performance Tests\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
@@ -20,5 +28,9 @@
   "workspaces": [
     "frontend",
     "backend"
-  ]
+  ],
+  "dependencies": {
+    "axios": "^1.11.0",
+    "form-data": "^4.0.4"
+  }
 }

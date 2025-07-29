@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+frontend/node_modules
+backend/node_modules
+
+# Development files
+.git
+.gitignore
+README.md
+.env
+backend/.env
+
+# Build artifacts
+frontend/build
+backend/dist
+
+# Logs
+*.log
+logs/
+
+# Test files
+**/__tests__
+**/*.test.*
+**/*.spec.*
+coverage/
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+.tmp
+.temp
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Documentation
+docs/
+.kiro/

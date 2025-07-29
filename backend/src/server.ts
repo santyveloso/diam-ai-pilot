@@ -2,23 +2,47 @@ import express from 'express';
 import { corsMiddleware } from './middleware/cors';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { handleMulterError } from './middleware/upload';
+import { requestIdMiddleware, performanceMiddleware, errorTrackingMiddleware } from './middleware/monitoring';
 import apiRoutes from './routes/api';
+import { env, validateEnvironment, logEnvironmentInfo } from './config/environment';
+import { logger } from './services/logger';
+
+// Validate environment configuration
+validateEnvironment();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = env.port;
 
 // Basic middleware
 app.use(corsMiddleware);
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Request logging middleware (development only)
-if (process.env.NODE_ENV !== 'production') {
-  app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    next();
+// Monitoring middleware
+app.use(requestIdMiddleware);
+app.use(performanceMiddleware);
+
+// Request timeout middleware
+app.use((req, res, next) => {
+  res.setTimeout(env.requestTimeout, () => {
+    logger.error('Request timeout', {
+      method: req.method,
+      path: req.path,
+      timeout: `${env.requestTimeout}ms`
+    }, req.requestId);
+    
+    if (!res.headersSent) {
+      res.status(408).json({
+        success: false,
+        error: {
+          code: 'REQUEST_TIMEOUT',
+          message: 'Request timeout'
+        }
+      });
+    }
   });
-}
+  next();
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -26,7 +50,11 @@ app.get('/health', (req, res) => {
     status: 'OK', 
     message: 'DIAM AI Pilot Backend is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: env.nodeEnv,
+    version: '1.0.0',
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    geminiConfigured: !!env.geminiApiKey
   });
 });
 
@@ -39,15 +67,19 @@ app.use(handleMulterError);
 // 404 handler for undefined routes
 app.use(notFoundHandler);
 
+// Error tracking middleware
+app.use(errorTrackingMiddleware);
+
 // Global error handler (must be last)
 app.use(errorHandler);
 
 // Start server only if not in test environment
-if (process.env.NODE_ENV !== 'test') {
+if (env.nodeEnv !== 'test') {
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
+    logger.info('🚀 DIAM AI Pilot Backend started successfully');
+    logEnvironmentInfo();
+    logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
+    logger.info(`📊 API endpoint: http://localhost:${PORT}/api`);
   });
 }
 
