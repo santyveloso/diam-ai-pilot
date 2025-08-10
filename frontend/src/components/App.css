@@ -1,3 +1,17 @@
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 60; }
+.modal-card { width: min(960px, 96vw); background: white; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 20px 60px rgba(15,23,42,0.25); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0 24px; }
+.modal-header h2 { margin: 0; font-size: 1.5rem; font-weight: 800; }
+.modal-close { background: transparent; border: none; font-size: 1.5rem; cursor: pointer; }
+.modal-subtitle { padding: 6px 24px 12px 24px; color: #64748b; font-weight: 600; }
+.modal-body { padding: 12px 24px 0 24px; }
+.modal-textarea { width: 100%; min-height: 160px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; font-size: 1rem; resize: vertical; }
+.modal-controls { display: flex; align-items: center; gap: 12px; padding: 16px 0; }
+.modal-select { padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; min-width: 180px; }
+.modal-file { font-size: 0.95rem; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px 20px 24px; }
+.btn-secondary { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 16px; font-weight: 700; }
+.btn-primary { background: linear-gradient(135deg, #5b5ce8 0%, #4338ca 100%); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; }
 /* App Component Styles */
 .app {
   min-height: 100vh;
@@ -64,7 +78,21 @@
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.08);
+  overflow: visible;
 }
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand-group { display: flex; align-items: center; gap: 0.75rem; }
+.brand-title { margin: 0; font-size: 1.75rem; font-weight: 800; color: #1e40af; line-height: 1.2; padding-top: 8px; }
+.brand-meta { color: #64748b; font-weight: 600; }
+
+.actions-group { display: flex; align-items: center; gap: 0.5rem; }
 
 .app-header h1 {
   color: #1e40af;
@@ -119,6 +147,26 @@
   border-radius: 10px;
   font-weight: 700;
 }
+
+.quick-ask-cta {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 0.5rem 0.875rem;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.profile-wrapper { position: relative; }
+.profile-avatar {
+  width: 48px; height: 48px; border-radius: 999px; border: 1px solid #e2e8f0;
+  display: flex; align-items: center; justify-content: center; background: #f8fafc;
+}
+.profile-menu {
+  position: absolute; right: 0; top: 56px; background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(15,23,42,0.12); padding: 0.5rem; min-width: 160px;
+}
+.menu-item { width: 100%; text-align: left; background: transparent; padding: 0.5rem 0.75rem; border-radius: 8px; }
+.menu-item:hover { background: #f1f5f9; }
 
 /* removed feature-badges */
 

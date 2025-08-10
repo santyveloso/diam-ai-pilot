@@ -17,6 +17,10 @@ interface AppState {
   isUploading: boolean;
   language: 'en' | 'pt';
     selectedChapter: string;
+    isProfileOpen: boolean;
+    showQuickAsk: boolean;
+    quickAskPreset: 'hints' | 'steps' | 'full';
+    quickAskText: string;
 }
 
 const App: React.FC = () => {
@@ -36,6 +40,10 @@ const App: React.FC = () => {
     isUploading: false,
     language: detectLanguage(),
     selectedChapter: 'general',
+    isProfileOpen: false,
+    showQuickAsk: false,
+    quickAskPreset: 'hints',
+    quickAskText: '',
   });
 
   const chapters = [
@@ -134,18 +142,25 @@ const App: React.FC = () => {
       <div className="app-container">
         {/* Top header bar, Moodle-inspired */}
         <header className="app-header">
-          <h1>DIAM AI Pilot</h1>
-          <p>Educational AI for ISCTE students</p>
-          {/* badges removed per design request */}
-          <div className="header-meta">
-            <span className="course-meta">2024/25 • ISCTE</span>
-            <div className="header-actions">
+          <div className="header-bar">
+            <div className="brand-group">
+              <h1 className="brand-title">BridgEdu</h1>
+              <span className="brand-meta">2025/2026 • ISCTE</span>
+            </div>
+            <div className="actions-group">
               <input
                 type="search"
                 className="header-search"
-                placeholder="Search materials or questions"
-                aria-label="Search"
+                placeholder="Procurar materiais ou perguntas"
+                aria-label="Procurar"
               />
+              <button
+                type="button"
+                className="quick-ask-cta"
+                onClick={() => setState(prev => ({ ...prev, showQuickAsk: true }))}
+              >
+                Pergunta Rápida
+              </button>
               {/* Hidden file input controlled by header button */}
               <input
                 id="header-file-input"
@@ -156,13 +171,12 @@ const App: React.FC = () => {
                   const files = e.target.files;
                   if (!files || files.length === 0) return;
                   const file = files[0];
-                  // Validate like FileUpload
                   const isPdfType = file.type === 'application/pdf';
                   const isPdfExt = file.name.toLowerCase().endsWith('.pdf');
                   const underLimit = file.size <= 10 * 1024 * 1024;
                   if (!isPdfType || !isPdfExt) {
                     const err = ErrorService.processError(
-                      { message: 'Please select a PDF file only.' },
+                      { message: 'Por favor selecione apenas ficheiros PDF.' },
                       state.language
                     );
                     setState((prev) => ({ ...prev, error: err }));
@@ -170,7 +184,7 @@ const App: React.FC = () => {
                   }
                   if (!underLimit) {
                     const err = ErrorService.processError(
-                      { message: 'File size must be less than 10MB.' },
+                      { message: 'O ficheiro deve ter menos de 10MB.' },
                       state.language
                     );
                     setState((prev) => ({ ...prev, error: err }));
@@ -184,17 +198,36 @@ const App: React.FC = () => {
                 className="header-upload-cta"
                 onClick={() => (document.getElementById('header-file-input') as HTMLInputElement)?.click()}
               >
-                Upload file (test)
+                Carregar ficheiro (teste)
               </button>
+              <div className="profile-wrapper">
+                <button
+                  type="button"
+                  className="profile-avatar"
+                  aria-haspopup="menu"
+                  aria-expanded={state.isProfileOpen}
+                  onClick={() => setState((prev) => ({ ...prev, isProfileOpen: !prev.isProfileOpen }))}
+                >
+                  <span aria-hidden>👤</span>
+                </button>
+                {state.isProfileOpen && (
+                  <div className="profile-menu" role="menu">
+                    <button className="menu-item" role="menuitem">Perfil</button>
+                    <button className="menu-item" role="menuitem">Definições</button>
+                    <button className="menu-item" role="menuitem">Sair</button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+          {/* badges removed per design request */}
         </header>
 
         <main className="app-main moodle-body">
           {/* Left rail - simplified navigation for familiarity */}
-          <aside className="moodle-left" aria-label="Course navigation">
+          <aside className="moodle-left" aria-label="Navegação do curso">
             <div className="nav-section">
-              <div className="nav-title">Chapters</div>
+              <div className="nav-title">Capítulos</div>
               <ul className="nav-list">
                 {chapters.map((c) => (
                   <li
@@ -215,11 +248,11 @@ const App: React.FC = () => {
             </div>
 
             <div className="nav-section">
-              <div className="nav-title">My questions</div>
+              <div className="nav-title">Minhas perguntas</div>
               <ul className="nav-list compact">
-                <li className="nav-chip">Doubt: div vs section</li>
-                <li className="nav-chip">Project scope</li>
-                <li className="nav-chip">Final grade</li>
+                <li className="nav-chip">Dúvida: div vs section</li>
+                <li className="nav-chip">Scope do projeto</li>
+                <li className="nav-chip">Nota final</li>
               </ul>
             </div>
           </aside>
@@ -282,22 +315,75 @@ const App: React.FC = () => {
           {/* Right rail - concise course info */}
           <aside className="moodle-right">
             <div className="info-card">
-              <div className="info-title">Chapter progress</div>
+              <div className="info-title">Progresso do capítulo</div>
               <div className="info-value">50%</div>
             </div>
             <div className="info-card">
-              <div className="info-title">Upcoming</div>
+              <div className="info-title">Próximas entregas</div>
               <ul className="info-list">
-                <li>Project — Nov 21</li>
-                <li>Exam — Dec 15</li>
+                <li>Projeto — 21 Nov</li>
+                <li>Exame — 15 Dez</li>
               </ul>
             </div>
             <div className="info-card">
-              <div className="info-title">Question summary</div>
-              <div className="info-note">5 open • 2 answered by teacher</div>
+              <div className="info-title">Resumo das perguntas</div>
+              <div className="info-note">5 abertas • 2 com resposta do professor</div>
             </div>
           </aside>
         </main>
+
+        {state.showQuickAsk && (
+          <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Pergunta rápida">
+            <div className="modal-card">
+              <div className="modal-header">
+                <h2>Pergunta rápida</h2>
+                <button className="modal-close" aria-label="Fechar" onClick={() => setState(prev => ({ ...prev, showQuickAsk: false }))}>×</button>
+              </div>
+              <div className="modal-subtitle">Capítulo: {chapters.find(c => c.id === state.selectedChapter)?.label}</div>
+              <div className="modal-body">
+                <textarea
+                  className="modal-textarea"
+                  placeholder="Escreve a tua pergunta aqui"
+                  value={state.quickAskText}
+                  onChange={e => setState(prev => ({ ...prev, quickAskText: e.target.value }))}
+                  rows={6}
+                />
+
+                <div className="modal-controls">
+                  <select
+                    className="modal-select"
+                    value={state.quickAskPreset}
+                    onChange={e => setState(prev => ({ ...prev, quickAskPreset: e.target.value as any }))}
+                  >
+                    <option value="hints">Apenas dicas</option>
+                    <option value="steps">Mostrar passos</option>
+                    <option value="full">Solução completa</option>
+                  </select>
+
+                  <input type="file" className="modal-file" accept=".pdf,application/pdf" onChange={(e) => {
+                    const f = e.target.files && e.target.files[0];
+                    if (f) handleFileSelect(f);
+                  }} />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button className="btn-secondary" onClick={() => setState(prev => ({ ...prev, showQuickAsk: false }))}>Cancelar</button>
+                <button
+                  className="btn-primary"
+                  onClick={() => {
+                    const text = state.quickAskText.trim();
+                    if (text) {
+                      handleQuestionSubmit(text);
+                    }
+                    setState(prev => ({ ...prev, showQuickAsk: false, quickAskText: '' }));
+                  }}
+                >
+                  Enviar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <footer className="app-footer">
           <p>© 2024 ISCTE - DIAM Course AI Assistant</p>
