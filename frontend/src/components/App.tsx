@@ -135,6 +135,32 @@ const App: React.FC = () => {
     }));
   }, []);
 
+  // File validation function
+  const validateFile = useCallback((file: File): boolean => {
+    const isPdfType = file.type === 'application/pdf';
+    const isPdfExt = file.name.toLowerCase().endsWith('.pdf');
+    const underLimit = file.size <= 10 * 1024 * 1024;
+    
+    if (!isPdfType || !isPdfExt) {
+      const err = ErrorService.processError(
+        { message: 'Por favor selecione apenas ficheiros PDF.' },
+        state.language
+      );
+      setState((prev) => ({ ...prev, error: err }));
+      return false;
+    }
+    
+    if (!underLimit) {
+      const err = ErrorService.processError(
+        { message: 'O ficheiro deve ter menos de 10MB.' },
+        state.language
+      );
+      setState((prev) => ({ ...prev, error: err }));
+      return false;
+    }
+    
+    return true;
+  }, [state.language]);
 
 
   return (
@@ -171,26 +197,9 @@ const App: React.FC = () => {
                   const files = e.target.files;
                   if (!files || files.length === 0) return;
                   const file = files[0];
-                  const isPdfType = file.type === 'application/pdf';
-                  const isPdfExt = file.name.toLowerCase().endsWith('.pdf');
-                  const underLimit = file.size <= 10 * 1024 * 1024;
-                  if (!isPdfType || !isPdfExt) {
-                    const err = ErrorService.processError(
-                      { message: 'Por favor selecione apenas ficheiros PDF.' },
-                      state.language
-                    );
-                    setState((prev) => ({ ...prev, error: err }));
-                    return;
+                  if (validateFile(file)) {
+                    handleFileSelect(file);
                   }
-                  if (!underLimit) {
-                    const err = ErrorService.processError(
-                      { message: 'O ficheiro deve ter menos de 10MB.' },
-                      state.language
-                    );
-                    setState((prev) => ({ ...prev, error: err }));
-                    return;
-                  }
-                  handleFileSelect(file);
                 }}
               />
               <button
@@ -198,7 +207,7 @@ const App: React.FC = () => {
                 className="header-upload-cta"
                 onClick={() => (document.getElementById('header-file-input') as HTMLInputElement)?.click()}
               >
-                Carregar ficheiro (teste)
+                Carregar ficheiro
               </button>
               <div className="profile-wrapper">
                 <button
@@ -212,9 +221,27 @@ const App: React.FC = () => {
                 </button>
                 {state.isProfileOpen && (
                   <div className="profile-menu" role="menu">
-                    <button className="menu-item" role="menuitem">Perfil</button>
-                    <button className="menu-item" role="menuitem">Definições</button>
-                    <button className="menu-item" role="menuitem">Sair</button>
+                    <button className="menu-item" role="menuitem" onClick={() => {
+                      // Navigate to profile page
+                      console.log('Navigate to profile');
+                      // Add actual navigation logic here
+                    }}>
+                      Perfil
+                    </button>
+                    <button className="menu-item" role="menuitem" onClick={() => {
+                      // Open settings modal
+                      console.log('Open settings modal');
+                      // Add settings modal logic here
+                    }}>
+                      Definições
+                    </button>
+                    <button className="menu-item" role="menuitem" onClick={() => {
+                      // Trigger logout functionality
+                      console.log('Logout triggered');
+                      // Add actual logout logic here
+                    }}>
+                      Sair
+                    </button>
                   </div>
                 )}
               </div>
@@ -353,7 +380,7 @@ const App: React.FC = () => {
                   <select
                     className="modal-select"
                     value={state.quickAskPreset}
-                    onChange={e => setState(prev => ({ ...prev, quickAskPreset: e.target.value as any }))}
+                    onChange={e => setState(prev => ({ ...prev, quickAskPreset: e.target.value as 'hints' | 'steps' | 'full' }))}
                   >
                     <option value="hints">Apenas dicas</option>
                     <option value="steps">Mostrar passos</option>
@@ -362,7 +389,9 @@ const App: React.FC = () => {
 
                   <input type="file" className="modal-file" accept=".pdf,application/pdf" onChange={(e) => {
                     const f = e.target.files && e.target.files[0];
-                    if (f) handleFileSelect(f);
+                    if (f && validateFile(f)) {
+                      handleFileSelect(f);
+                    }
                   }} />
                 </div>
               </div>
