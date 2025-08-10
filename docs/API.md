@@ -19,6 +19,7 @@ Check the API server status and service health.
 **Endpoint:** `GET /api/health`
 
 **Response:**
+
 ```json
 {
   "status": "OK",
@@ -33,6 +34,7 @@ Check the API server status and service health.
 ```
 
 **Status Codes:**
+
 - `200` - Service is healthy
 - `503` - Service unavailable
 
@@ -48,12 +50,13 @@ Upload a PDF document and ask a question about its content.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `file` | File | Yes | PDF file to analyze (max 10MB) |
-| `question` | String | Yes | Question about the document (10-1000 chars) |
+| Parameter  | Type   | Required | Description                                 |
+| ---------- | ------ | -------- | ------------------------------------------- |
+| `file`     | File   | Yes      | PDF file to analyze (max 10MB)              |
+| `question` | String | Yes      | Question about the document (10-1000 chars) |
 
 **Request Example:**
+
 ```bash
 curl -X POST http://localhost:3001/api/ask \
   -F "file=@document.pdf" \
@@ -61,6 +64,7 @@ curl -X POST http://localhost:3001/api/ask \
 ```
 
 **Success Response:**
+
 ```json
 {
   "success": true,
@@ -69,6 +73,7 @@ curl -X POST http://localhost:3001/api/ask \
 ```
 
 **Error Response:**
+
 ```json
 {
   "success": false,
@@ -82,6 +87,7 @@ curl -X POST http://localhost:3001/api/ask \
 ```
 
 **Status Codes:**
+
 - `200` - Success
 - `400` - Bad Request (validation error)
 - `413` - Payload Too Large
@@ -92,30 +98,31 @@ curl -X POST http://localhost:3001/api/ask \
 
 ### Client Errors (4xx)
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `MISSING_FILE` | 400 | No PDF file provided |
-| `MISSING_QUESTION` | 400 | No question provided |
-| `INVALID_FILE_TYPE` | 400 | File is not a PDF |
-| `FILE_TOO_LARGE` | 413 | File exceeds 10MB limit |
-| `QUESTION_TOO_SHORT` | 400 | Question under 10 characters |
-| `QUESTION_TOO_LONG` | 400 | Question over 1000 characters |
-| `PDF_PROCESSING_ERROR` | 400 | Failed to extract text from PDF |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
+| Code                   | HTTP Status | Description                     |
+| ---------------------- | ----------- | ------------------------------- |
+| `MISSING_FILE`         | 400         | No PDF file provided            |
+| `MISSING_QUESTION`     | 400         | No question provided            |
+| `INVALID_FILE_TYPE`    | 400         | File is not a PDF               |
+| `FILE_TOO_LARGE`       | 413         | File exceeds 10MB limit         |
+| `QUESTION_TOO_SHORT`   | 400         | Question under 10 characters    |
+| `QUESTION_TOO_LONG`    | 400         | Question over 1000 characters   |
+| `PDF_PROCESSING_ERROR` | 400         | Failed to extract text from PDF |
+| `RATE_LIMIT_EXCEEDED`  | 429         | Too many requests               |
 
 ### Server Errors (5xx)
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `INTERNAL_SERVER_ERROR` | 500 | Unexpected server error |
-| `AI_GENERATION_ERROR` | 500 | AI model processing failed |
-| `SERVICE_UNAVAILABLE` | 503 | External service unavailable |
+| Code                    | HTTP Status | Description                  |
+| ----------------------- | ----------- | ---------------------------- |
+| `INTERNAL_SERVER_ERROR` | 500         | Unexpected server error      |
+| `AI_GENERATION_ERROR`   | 500         | AI model processing failed   |
+| `SERVICE_UNAVAILABLE`   | 503         | External service unavailable |
 
 ## Request/Response Examples
 
 ### Successful Question Processing
 
 **Request:**
+
 ```http
 POST /api/ask HTTP/1.1
 Host: localhost:3001
@@ -134,6 +141,7 @@ What are the key concepts explained in this document?
 ```
 
 **Response:**
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -148,6 +156,7 @@ Access-Control-Allow-Origin: *
 ### File Validation Error
 
 **Request:**
+
 ```http
 POST /api/ask HTTP/1.1
 Host: localhost:3001
@@ -166,6 +175,7 @@ What is this about?
 ```
 
 **Response:**
+
 ```http
 HTTP/1.1 400 Bad Request
 Content-Type: application/json
@@ -184,6 +194,7 @@ Content-Type: application/json
 ### Question Validation Error
 
 **Request:**
+
 ```http
 POST /api/ask HTTP/1.1
 Host: localhost:3001
@@ -202,6 +213,7 @@ Hi
 ```
 
 **Response:**
+
 ```http
 HTTP/1.1 400 Bad Request
 Content-Type: application/json
@@ -226,6 +238,7 @@ The API implements rate limiting to prevent abuse:
 - **Exceeded:** Returns `429 Too Many Requests` when limit exceeded
 
 **Rate Limit Headers:**
+
 ```http
 X-RateLimit-Limit: 10
 X-RateLimit-Remaining: 7
@@ -235,11 +248,13 @@ X-RateLimit-Reset: 1640995200
 ## File Upload Specifications
 
 ### Supported Formats
+
 - **MIME Type:** `application/pdf`
 - **File Extension:** `.pdf`
 - **Maximum Size:** 10MB (10,485,760 bytes)
 
 ### File Validation
+
 1. **MIME Type Check:** Validates `Content-Type` header
 2. **Extension Check:** Validates file extension
 3. **Size Check:** Validates file size
@@ -247,6 +262,7 @@ X-RateLimit-Reset: 1640995200
 5. **Text Extraction:** Ensures extractable text content
 
 ### Processing Pipeline
+
 1. **Upload:** File received via multipart/form-data
 2. **Validation:** File type, size, and format validation
 3. **Storage:** Temporary storage in upload directory
@@ -260,29 +276,34 @@ X-RateLimit-Reset: 1640995200
 The API supports bilingual operation:
 
 ### Automatic Language Detection
+
 - **Portuguese:** Detected by keywords like "o que", "como", "por que"
 - **English:** Default language for other inputs
 - **Response Language:** Matches detected question language
 
 ### Supported Languages
+
 - **English (en):** Default language
 - **Portuguese (pt):** Full support for Brazilian Portuguese
 
 ## Security Considerations
 
 ### Input Validation
+
 - All inputs are validated and sanitized
 - File type restrictions enforced
 - Size limits strictly enforced
 - Question length validation
 
 ### File Security
+
 - Temporary file storage only
 - Automatic cleanup after processing
 - No persistent file storage
 - Secure file handling practices
 
 ### Error Handling
+
 - Sensitive information not exposed in errors
 - Generic error messages in production
 - Detailed logging for debugging
@@ -291,6 +312,7 @@ The API supports bilingual operation:
 ## Performance Characteristics
 
 ### Response Times
+
 - **Health Check:** < 100ms
 - **File Upload:** < 1s (depends on file size)
 - **PDF Processing:** 1-3s (depends on document complexity)
@@ -298,11 +320,13 @@ The API supports bilingual operation:
 - **Total Request:** 10-20s typical
 
 ### Throughput
+
 - **Concurrent Requests:** Limited by AI API rate limits
 - **File Processing:** Single-threaded PDF processing
 - **Memory Usage:** Temporary spike during file processing
 
 ### Optimization
+
 - Streaming file uploads
 - Efficient PDF text extraction
 - Connection pooling for AI API
@@ -311,6 +335,7 @@ The API supports bilingual operation:
 ## Development and Testing
 
 ### Local Development
+
 ```bash
 # Start development server
 npm run dev
@@ -320,6 +345,7 @@ curl -X GET http://localhost:3001/api/health
 ```
 
 ### Testing Endpoints
+
 ```bash
 # Health check
 curl -X GET http://localhost:3001/api/health
@@ -335,7 +361,9 @@ curl -X POST http://localhost:3001/api/ask \
 ```
 
 ### Integration Testing
+
 The API includes comprehensive integration tests covering:
+
 - Complete request/response cycles
 - Error handling scenarios
 - File validation
@@ -345,7 +373,9 @@ The API includes comprehensive integration tests covering:
 ## Monitoring and Logging
 
 ### Request Logging
+
 All requests are logged with:
+
 - Timestamp
 - Request method and path
 - Response status
@@ -353,7 +383,9 @@ All requests are logged with:
 - Error details (if any)
 
 ### Error Logging
+
 Errors include:
+
 - Request ID for tracking
 - Timestamp
 - Error code and message
@@ -361,6 +393,7 @@ Errors include:
 - Request context
 
 ### Health Monitoring
+
 - Service availability
 - AI API connectivity
 - Response time metrics
@@ -369,6 +402,7 @@ Errors include:
 ## Future Enhancements
 
 ### Planned Features
+
 - Authentication and authorization
 - User session management
 - Response caching
@@ -376,6 +410,7 @@ Errors include:
 - Batch processing capabilities
 
 ### API Versioning
+
 - Current version: v1 (implicit)
 - Future versions will use URL versioning: `/api/v2/`
 - Backward compatibility maintained
@@ -383,6 +418,7 @@ Errors include:
 ## Support and Contact
 
 For API support and questions:
+
 - **Documentation:** This document
 - **Issues:** GitHub repository issues
 - **Development:** See DEVELOPMENT.md guide

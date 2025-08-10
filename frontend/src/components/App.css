@@ -1,8 +1,10 @@
 /* App Component Styles */
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  background: radial-gradient(1000px 600px at 10% -10%, rgba(59, 130, 246, 0.08), transparent 60%),
+              radial-gradient(800px 500px at 110% 10%, rgba(16, 185, 129, 0.07), transparent 55%),
+              linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -41,7 +43,7 @@
 }
 
 .app-container {
-  max-width: 900px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 24px;
   display: flex;
@@ -51,13 +53,17 @@
 
 /* Header Styles */
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   text-align: center;
-  margin-bottom: 3rem;
-  padding: 2rem 0;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.1);
+  margin-bottom: 1.5rem;
+  padding: 1rem 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: saturate(180%) blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.08);
 }
 
 .app-header h1 {
@@ -78,13 +84,96 @@
   font-weight: 500;
 }
 
+.header-meta {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.course-meta {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-search {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 0.5rem 0.875rem;
+  min-width: 260px;
+}
+
+.header-upload-cta {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  padding: 0.5rem 0.875rem;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* removed feature-badges */
+
 /* Main Content */
 .app-main {
   flex: 1;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Moodle-inspired three-pane layout */
+.moodle-body {
+  display: grid;
+  grid-template-columns: 260px minmax(420px, 1fr) 320px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.moodle-left,
+.moodle-right {
+  background: white;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.06);
+  border-radius: 14px;
+  padding: 1rem;
+  position: sticky;
+  top: 24px;
+  height: fit-content;
+}
+
+.moodle-center {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1.25rem;
 }
+
+.chapter-header { display: flex; align-items: center; justify-content: space-between; }
+.chapter-title { margin: 0; color: #1e293b; font-weight: 800; }
+
+.nav-section { margin-bottom: 1rem; }
+.nav-title { font-weight: 700; color: #334155; margin-bottom: 0.5rem; }
+.nav-list { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+.nav-item { padding: 0.5rem 0.75rem; border-radius: 8px; cursor: pointer; color: #334155; }
+.nav-item:hover { background: #f1f5f9; }
+.nav-item.active { background: #e2e8f0; font-weight: 600; }
+.nav-list.compact { gap: 0.5rem; }
+.nav-chip { font-size: 0.85rem; padding: 0.35rem 0.6rem; border-radius: 999px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; }
+
+.info-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem; }
+.info-title { font-size: 0.9rem; font-weight: 700; color: #334155; }
+.info-value { font-size: 1.5rem; font-weight: 800; color: #1e40af; }
+.info-list { margin: 0.5rem 0 0 1rem; color: #475569; }
+.info-note { color: #475569; font-size: 0.9rem; }
 
 /* Error Banner */
 .error-banner {
@@ -179,6 +268,23 @@
   transform: translateY(-2px);
 }
 
+/* Arrange upload and question vertically in first column */
+.upload-section { grid-column: 1; }
+.question-section { grid-column: 1; }
+.response-section { grid-column: 2; position: sticky; top: 24px; }
+.hidden-upload { 
+  position: absolute !important; 
+  width: 1px; height: 1px; 
+  padding: 0; margin: -1px; 
+  overflow: hidden; clip: rect(0 0 0 0); 
+  white-space: nowrap; border: 0; 
+}
+
+/* Compact upload for header CTA */
+.upload-section.compact .file-upload-area { padding: 1.25rem; min-height: auto; }
+.upload-section.compact .upload-icon { font-size: 2rem; }
+.upload-section.compact .upload-text { font-size: 1rem; }
+
 /* Placeholder Styles (temporary for development) */
 .file-upload-placeholder,
 .question-input-placeholder,
@@ -239,6 +345,10 @@
   .app-header p {
     font-size: 1rem;
   }
+  
+  .app-main { display: flex; flex-direction: column; gap: 1rem; }
+  .moodle-body { display: flex; flex-direction: column; }
+  .moodle-left, .moodle-right { position: relative; top: auto; }
   
   .upload-section,
   .question-section,

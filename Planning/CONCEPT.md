@@ -46,6 +46,7 @@ diam-ai-pilot/
 ## Tecnologias
 
 ### Frontend
+
 - **React 18+** com TypeScript
 - **Modern CSS** para estilização
 - **Axios** para requisições HTTP
@@ -53,6 +54,7 @@ diam-ai-pilot/
 - **Jest & React Testing Library** para testes
 
 ### Backend
+
 - **Node.js** com Express.js e TypeScript
 - **Multer** para upload de arquivos
 - **pdf-parse** para extração de texto
@@ -63,11 +65,13 @@ diam-ai-pilot/
 ## Configuração de Desenvolvimento
 
 ### Pré-requisitos
+
 - Node.js 18+
 - npm 8+
 - Chave da API do Google Gemini
 
 ### Instalação Rápida
+
 ```bash
 # Clonar o repositório
 git clone <repository-url>
@@ -83,6 +87,7 @@ cp .env.example .env
 ```
 
 ### Configuração do Backend
+
 Crie um arquivo `.env` no diretório `backend/` com:
 
 ```env
@@ -94,6 +99,7 @@ MAX_FILE_SIZE=10485760
 ```
 
 ### Desenvolvimento
+
 ```bash
 # Executar frontend e backend simultaneamente
 npm run dev:all
@@ -104,6 +110,7 @@ npm run dev:backend   # Express server (porta 3001)
 ```
 
 ### Testes
+
 ```bash
 # Executar todos os testes
 npm test
@@ -119,18 +126,21 @@ npm run test:coverage
 ## Scripts Disponíveis
 
 ### Scripts Principais
+
 - `npm run dev:all` - Executa frontend e backend simultaneamente
 - `npm run build` - Build de produção para ambos os projetos
 - `npm test` - Executa todos os testes
 - `npm run install:all` - Instala dependências de todos os projetos
 
 ### Scripts de Desenvolvimento
+
 - `npm run dev:frontend` - Servidor de desenvolvimento React (porta 3000)
 - `npm run dev:backend` - Servidor de desenvolvimento Express (porta 3001)
 - `npm run build:frontend` - Build de produção do frontend
 - `npm run build:backend` - Build de produção do backend
 
 ### Scripts de Teste
+
 - `npm run test:frontend` - Testes do frontend
 - `npm run test:backend` - Testes do backend
 - `npm run test:coverage` - Testes com relatório de cobertura
@@ -143,6 +153,7 @@ npm run test:coverage
 4. **Receba a resposta** gerada pela IA baseada no documento
 
 ### Limitações
+
 - Arquivos PDF até 10MB
 - Perguntas entre 10 e 1000 caracteres
 - Apenas arquivos PDF são suportados
@@ -151,6 +162,7 @@ npm run test:coverage
 ## Arquitetura
 
 ### Fluxo de Dados
+
 ```
 [Cliente] → [Upload PDF + Pergunta] → [Backend]
     ↓
@@ -162,12 +174,14 @@ npm run test:coverage
 ### Componentes Principais
 
 **Frontend:**
+
 - `App.tsx` - Componente principal com gerenciamento de estado
 - `FileUpload.tsx` - Interface de upload de arquivos
 - `QuestionInput.tsx` - Formulário de perguntas
 - `ResponseDisplay.tsx` - Exibição de respostas da IA
 
 **Backend:**
+
 - `server.ts` - Configuração do servidor Express
 - `api.ts` - Rotas da API
 - `geminiClient.ts` - Integração com Google Gemini
@@ -183,12 +197,14 @@ npm run test:coverage
 ## Testes
 
 ### Cobertura de Testes
+
 - ✅ **Testes Unitários**: Todos os componentes e serviços
 - ✅ **Testes de Integração**: Fluxos completos da API
 - ✅ **Testes End-to-End**: Jornadas completas do usuário
 - ✅ **Testes de Acessibilidade**: Navegação por teclado e ARIA
 
 ### Executar Testes
+
 ```bash
 # Todos os testes
 npm test
@@ -221,6 +237,7 @@ npm run test:e2e
 ## Contribuição
 
 ### Processo de Desenvolvimento
+
 1. Fork do repositório
 2. Criar branch para feature (`git checkout -b feature/nova-funcionalidade`)
 3. Implementar mudanças com testes
@@ -230,6 +247,7 @@ npm run test:e2e
 7. Criar Pull Request
 
 ### Padrões de Código
+
 - **TypeScript**: Tipagem estrita habilitada
 - **ESLint**: Configurado para React e Node.js
 - **Testes**: Obrigatórios para novas funcionalidades
@@ -240,6 +258,7 @@ npm run test:e2e
 ### Problemas Comuns
 
 **Erro de API Key:**
+
 ```bash
 # Verificar se a chave está configurada
 echo $GEMINI_API_KEY
@@ -249,15 +268,18 @@ cat backend/.env
 ```
 
 **Problemas de Upload:**
+
 - Verificar se o arquivo é PDF válido
 - Confirmar que o tamanho é menor que 10MB
 - Verificar permissões do diretório `uploads/`
 
 **Erros de CORS:**
+
 - Verificar se o frontend está rodando na porta 3000
 - Confirmar configuração de CORS no backend
 
 ### Logs de Debug
+
 ```bash
 # Backend com logs detalhados
 cd backend
@@ -270,6 +292,7 @@ tail -f backend/logs/error.log
 ## Roadmap
 
 ### Próximas Funcionalidades
+
 - [ ] Autenticação de usuários
 - [ ] Histórico de conversas
 - [ ] Suporte a múltiplos formatos de arquivo
@@ -278,6 +301,7 @@ tail -f backend/logs/error.log
 - [ ] Deploy automatizado
 
 ### Melhorias Técnicas
+
 - [ ] Containerização com Docker
 - [ ] CI/CD pipeline
 - [ ] Monitoramento e alertas
@@ -291,6 +315,7 @@ Este projeto é um protótipo educacional desenvolvido para o curso DIAM no ISCT
 ## Suporte
 
 Para suporte e questões:
+
 - **Documentação**: Consulte os arquivos em `docs/`
 - **Issues**: Use o sistema de issues do repositório
 - **Desenvolvimento**: Veja `docs/DEVELOPMENT.md`
