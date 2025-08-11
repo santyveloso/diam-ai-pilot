@@ -231,18 +231,44 @@ Content-Type: application/json
 
 ## Rate Limiting
 
-The API implements rate limiting to prevent abuse:
+The API implements strict rate limiting to control Google Gemini AI usage:
 
-- **Limit:** 10 requests per minute per IP
+- **Limit:** 2 requests per minute per session
+- **Session:** Based on IP address + User-Agent
+- **Scope:** Applied only to `/api/ask` endpoint
 - **Headers:** Rate limit information is included in response headers
 - **Exceeded:** Returns `429 Too Many Requests` when limit exceeded
 
 **Rate Limit Headers:**
 
 ```http
-X-RateLimit-Limit: 10
-X-RateLimit-Remaining: 7
-X-RateLimit-Reset: 1640995200
+X-RateLimit-Limit: 2
+X-RateLimit-Remaining: 1
+X-RateLimit-Reset: 2025-08-11T12:22:52.656Z
+Retry-After: 45
+```
+
+**Rate Limit Status Endpoint:**
+
+Check your current rate limit status:
+
+```bash
+curl http://localhost:3001/api/rate-limit-status
+```
+
+Response:
+```json
+{
+  "success": true,
+  "rateLimit": {
+    "limit": 2,
+    "remaining": 1,
+    "resetTime": "2025-08-11T12:22:52.656Z",
+    "windowStart": "2025-08-11T12:21:52.656Z",
+    "requests": 1,
+    "sessionId": "OjpmZmZm..."
+  }
+}
 ```
 
 ## File Upload Specifications

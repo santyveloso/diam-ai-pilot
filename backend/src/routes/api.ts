@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { uploadMiddleware } from '../middleware/upload';
+import { rateLimitMiddleware, getRateLimitStatus } from '../middleware/rateLimiter';
 import { PDFProcessor } from '../services/pdfProcessor';
 import { GeminiClient } from '../services/geminiClient';
 import { ErrorService } from '../services/errorService';
@@ -13,8 +14,9 @@ let geminiClient: GeminiClient;
 /**
  * POST /api/ask
  * Main endpoint for processing questions with PDF context
+ * Rate limited to 2 requests per minute per session
  */
-router.post('/ask', uploadMiddleware.single('file'), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/ask', rateLimitMiddleware, uploadMiddleware.single('file'), async (req: Request, res: Response, next: NextFunction) => {
   let uploadedFilePath: string | undefined;
 
   try {
@@ -75,6 +77,37 @@ router.post('/ask', uploadMiddleware.single('file'), async (req: Request, res: R
 });
 
 /**
+ * GET /api/rate-limit-status
+ * Get current rate limit status for the session
+ */
+router.get('/rate-limit-status', (req: Request, res: Response) => {
+  try {
+    const status = getRateLimitStatus(req);
+    
+    res.json({
+      success: true,
+      rateLimit: {
+        limit: 2,
+        remaining: status.remaining,
+        resetTime: status.resetTime.toISOString(),
+        windowStart: status.windowStart.toISOString(),
+        requests: status.requests,
+        sessionId: status.sessionId.substring(0, 8) + '...' // Partial session ID for privacy
+      }
+    });
+  } catch (error) {
+    console.error('Rate limit status error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to get rate limit status'
+      }
+    });
+  }
+});
+
+/**
  * GET /api/health
  * Health check endpoint for the API
  */
@@ -93,6 +126,11 @@ router.get('/health', async (_req: Request, res: Response) => {
       message: 'API is running',
       services: {
         gemini: geminiHealthy ? 'healthy' : 'unhealthy'
+      },
+      rateLimit: {
+        enabled: true,
+        limit: 2,
+        windowMs: 60000
       },
       timestamp: new Date().toISOString()
     });

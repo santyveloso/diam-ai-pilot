@@ -1,45 +1,93 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AIResponse, QuestionContext } from '../types';
-import { ErrorService } from './errorService';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { AIResponse, QuestionContext } from "../types";
+import { ErrorService } from "./errorService";
 
 export class GeminiClient {
   private genAI: GoogleGenerativeAI;
-  private model: any;
+  private model: any; // TODO: Type this properly when @google/generative-ai exports proper types
 
   constructor(apiKey?: string) {
     const key = apiKey || process.env.GEMINI_API_KEY;
     if (!key) {
-      throw ErrorService.createError('API_CONFIGURATION_ERROR', 
-        'Gemini API key is required. Set GEMINI_API_KEY environment variable.');
+      throw ErrorService.createError(
+        "API_CONFIGURATION_ERROR",
+        "Gemini API key is required. Set GEMINI_API_KEY environment variable."
+      );
     }
 
     this.genAI = new GoogleGenerativeAI(key);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    this.model = this.genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+    });
   }
 
   /**
    * Detects the language of the question (Portuguese or English)
    */
-  private detectLanguage(question: string): 'pt' | 'en' {
+  private detectLanguage(question: string): "pt" | "en" {
     // Simple language detection based on common Portuguese words
     const portugueseWords = [
-      'o', 'a', 'os', 'as', 'um', 'uma', 'de', 'do', 'da', 'dos', 'das',
-      'em', 'no', 'na', 'nos', 'nas', 'para', 'por', 'com', 'sem', 'sobre',
-      'que', 'qual', 'quando', 'onde', 'como', 'por que', 'porque',
-      'é', 'são', 'está', 'estão', 'tem', 'têm', 'foi', 'foram',
-      'ser', 'estar', 'ter', 'fazer', 'dizer', 'ver', 'dar', 'saber',
-      'explicar', 'explique', 'como', 'o que', 'qual é'
+      "o",
+      "a",
+      "os",
+      "as",
+      "um",
+      "uma",
+      "de",
+      "do",
+      "da",
+      "dos",
+      "das",
+      "em",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "para",
+      "por",
+      "com",
+      "sem",
+      "sobre",
+      "que",
+      "qual",
+      "quando",
+      "onde",
+      "como",
+      "por que",
+      "porque",
+      "é",
+      "são",
+      "está",
+      "estão",
+      "tem",
+      "têm",
+      "foi",
+      "foram",
+      "ser",
+      "estar",
+      "ter",
+      "fazer",
+      "dizer",
+      "ver",
+      "dar",
+      "saber",
+      "explicar",
+      "explique",
+      "como",
+      "o que",
+      "qual é",
     ];
 
     const questionLower = question.toLowerCase();
-    const portugueseMatches = portugueseWords.filter(word => 
-      questionLower.includes(` ${word} `) || 
-      questionLower.startsWith(`${word} `) || 
-      questionLower.endsWith(` ${word}`)
+    const portugueseMatches = portugueseWords.filter(
+      (word) =>
+        questionLower.includes(` ${word} `) ||
+        questionLower.startsWith(`${word} `) ||
+        questionLower.endsWith(` ${word}`)
     ).length;
 
     // If we find 2 or more Portuguese words, assume it's Portuguese
-    return portugueseMatches >= 2 ? 'pt' : 'en';
+    return portugueseMatches >= 2 ? "pt" : "en";
   }
 
   /**
@@ -58,12 +106,12 @@ PERGUNTA DO ESTUDANTE:
 ${question}
 
 INSTRUÇÕES:
-- Responda em português brasileiro
-- Base sua resposta exclusivamente no conteúdo do documento fornecido
-- Se a pergunta não puder ser respondida com base no documento, diga claramente que a informação não está disponível no material fornecido
-- Seja claro, didático e use exemplos quando apropriado
-- Mantenha um tom educacional e encorajador
-- Se necessário, sugira tópicos relacionados que o estudante pode explorar
+- Responde em português de portugal
+- Baseia a tua resposta exclusivamente no conteúdo do documento fornecido
+- Se a pergunta não puder ser respondida com base no documento, diz claramente que a informação não está disponível no material fornecido
+- Sê claro, didático e usa exemplos quando apropriado
+- Mantem um tom educacional e encorajador
+- Se necessário, sugere tópicos relacionados que o estudante pode explorar
 
 RESPOSTA:`,
 
@@ -83,7 +131,7 @@ INSTRUCTIONS:
 - Maintain an educational and encouraging tone
 - If necessary, suggest related topics the student can explore
 
-RESPONSE:`
+RESPONSE:`,
     };
 
     return prompts[language];
@@ -98,11 +146,17 @@ RESPONSE:`
     try {
       // Validate input
       if (!context.question.trim()) {
-        throw ErrorService.createError('MISSING_QUESTION', 'Question cannot be empty');
+        throw ErrorService.createError(
+          "MISSING_QUESTION",
+          "Question cannot be empty"
+        );
       }
 
       if (!context.documentContent.trim()) {
-        throw ErrorService.createError('INVALID_CONTENT', 'Document content cannot be empty');
+        throw ErrorService.createError(
+          "INVALID_CONTENT",
+          "Document content cannot be empty"
+        );
       }
 
       // Construct the prompt
@@ -114,7 +168,10 @@ RESPONSE:`
       const text = response.text();
 
       if (!text || text.trim().length === 0) {
-        throw ErrorService.createError('AI_GENERATION_ERROR', 'Empty response from AI model');
+        throw ErrorService.createError(
+          "AI_GENERATION_ERROR",
+          "Empty response from AI model"
+        );
       }
 
       const processingTime = Date.now() - startTime;
@@ -123,9 +180,8 @@ RESPONSE:`
         answer: text.trim(),
         processingTime,
         confidence: this.calculateConfidence(text),
-        sources: ['Document content provided by user']
+        sources: ["Document content provided by user"],
       };
-
     } catch (error) {
       const processingTime = Date.now() - startTime;
 
@@ -136,24 +192,53 @@ RESPONSE:`
 
       if (error instanceof Error) {
         // Handle specific API errors
-        if (error.message.includes('API_KEY') || error.message.includes('Invalid API key')) {
-          throw ErrorService.createError('API_CONFIGURATION_ERROR', 'Invalid or missing API key');
+        if (
+          error.message.includes("API_KEY") ||
+          error.message.includes("Invalid API key")
+        ) {
+          throw ErrorService.createError(
+            "API_CONFIGURATION_ERROR",
+            "Invalid or missing API key"
+          );
         }
-        if (error.message.includes('RATE_LIMIT') || error.message.includes('rate limit')) {
-          throw ErrorService.createError('RATE_LIMIT_EXCEEDED', 'API rate limit exceeded. Please try again later.');
+        if (
+          error.message.includes("RATE_LIMIT") ||
+          error.message.includes("rate limit")
+        ) {
+          throw ErrorService.createError(
+            "RATE_LIMIT_EXCEEDED",
+            "API rate limit exceeded. Please try again later."
+          );
         }
-        if (error.message.includes('QUOTA') || error.message.includes('quota')) {
-          throw ErrorService.createError('RATE_LIMIT_EXCEEDED', 'API quota exceeded. Please try again later.');
+        if (
+          error.message.includes("QUOTA") ||
+          error.message.includes("quota")
+        ) {
+          throw ErrorService.createError(
+            "RATE_LIMIT_EXCEEDED",
+            "API quota exceeded. Please try again later."
+          );
         }
-        if (error.message.includes('timeout') || error.message.includes('TIMEOUT')) {
-          throw ErrorService.createError('AI_GENERATION_ERROR', 'AI request timeout. Please try again.');
+        if (
+          error.message.includes("timeout") ||
+          error.message.includes("TIMEOUT")
+        ) {
+          throw ErrorService.createError(
+            "AI_GENERATION_ERROR",
+            "AI request timeout. Please try again."
+          );
         }
-        
-        throw ErrorService.createError('AI_GENERATION_ERROR', `AI generation failed: ${error.message}`);
+
+        throw ErrorService.createError(
+          "AI_GENERATION_ERROR",
+          `AI generation failed: ${error.message}`
+        );
       }
 
-      throw ErrorService.createError('AI_GENERATION_ERROR', 
-        `AI generation failed: Unknown error (Processing time: ${processingTime}ms)`);
+      throw ErrorService.createError(
+        "AI_GENERATION_ERROR",
+        `AI generation failed: Unknown error (Processing time: ${processingTime}ms)`
+      );
     }
   }
 
@@ -169,17 +254,17 @@ RESPONSE:`
 
     // Increase confidence if response contains specific indicators
     const positiveIndicators = [
-      'based on the document',
-      'according to the material',
-      'as stated in',
-      'the document explains',
-      'conforme o documento',
-      'de acordo com o material',
-      'como explicado no',
-      'o documento menciona'
+      "based on the document",
+      "according to the material",
+      "as stated in",
+      "the document explains",
+      "conforme o documento",
+      "de acordo com o material",
+      "como explicado no",
+      "o documento menciona",
     ];
 
-    const hasPositiveIndicators = positiveIndicators.some(indicator => 
+    const hasPositiveIndicators = positiveIndicators.some((indicator) =>
       response.toLowerCase().includes(indicator.toLowerCase())
     );
 
@@ -187,13 +272,13 @@ RESPONSE:`
 
     // Decrease confidence if response indicates uncertainty
     const uncertaintyIndicators = [
-      'not available in the document',
-      'cannot be answered',
-      'não está disponível no documento',
-      'não pode ser respondida'
+      "not available in the document",
+      "cannot be answered",
+      "não está disponível no documento",
+      "não pode ser respondida",
     ];
 
-    const hasUncertaintyIndicators = uncertaintyIndicators.some(indicator => 
+    const hasUncertaintyIndicators = uncertaintyIndicators.some((indicator) =>
       response.toLowerCase().includes(indicator.toLowerCase())
     );
 
@@ -206,12 +291,15 @@ RESPONSE:`
   /**
    * Creates a question context object
    */
-  createQuestionContext(question: string, documentContent: string): QuestionContext {
+  createQuestionContext(
+    question: string,
+    documentContent: string
+  ): QuestionContext {
     return {
       question: question.trim(),
       documentContent: documentContent.trim(),
       timestamp: new Date(),
-      language: this.detectLanguage(question)
+      language: this.detectLanguage(question),
     };
   }
 
@@ -220,20 +308,15 @@ RESPONSE:`
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const testContext: QuestionContext = {
-        question: 'Test question',
-        documentContent: 'Test document content for health check.',
-        timestamp: new Date(),
-        language: 'en'
-      };
-
-      const result = await this.model.generateContent('Say "OK" if you can respond.');
+      const result = await this.model.generateContent(
+        'Say "OK" if you can respond.'
+      );
       const response = await result.response;
       const text = response.text();
 
       return text.trim().length > 0;
     } catch (error) {
-      console.error('Gemini API health check failed:', error);
+      console.error("Gemini API health check failed:", error);
       return false;
     }
   }
