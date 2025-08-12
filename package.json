@@ -23,6 +23,7 @@
     "perf:backend": "cd backend && npm run test -- --testNamePattern=\"Performance Tests\""
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "concurrently": "^8.2.2"
   },
   "workspaces": [

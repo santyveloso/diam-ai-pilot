@@ -434,7 +434,7 @@ const App: React.FC = () => {
         )}
 
         <footer className="app-footer">
-          <p>© 2024 ISCTE - DIAM Course AI Assistant</p>
+          <p>© 2025 ISCTE - DIAM Course AI Assistant</p>
         </footer>
       </div>
     </div>

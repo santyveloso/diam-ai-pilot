@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import FileUpload from "./FileUpload";
 import QuestionInput from "./QuestionInput";
 import ResponseDisplay from "./ResponseDisplay";
 import { askQuestion } from "../services/api";
@@ -559,7 +558,7 @@ const TeacherDashboard: React.FC = () => {
         )}
 
         <footer className="app-footer">
-          <p>© 2024 ISCTE - DIAM Course AI Assistant</p>
+          <p>© 2025 ISCTE - DIAM Course AI Assistant</p>
         </footer>
       </div>
     </div>
