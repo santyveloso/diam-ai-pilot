@@ -25,7 +25,7 @@ interface AppState {
     quickAskText: string;
 }
 
-const App: React.FC = () => {
+const TeacherDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   
   // Detect browser language
@@ -174,12 +174,12 @@ const App: React.FC = () => {
         <header className="app-header">
           <div className="header-bar">
             <div className="brand-group">
-              <h1 className="brand-title">BridgEdu</h1>
+              <h1 className="brand-title">BridgEdu - Teacher</h1>
               <span className="brand-meta">2025/2026 • ISCTE</span>
             </div>
             <div className="actions-group">
-              <Link to="/teacher" className="header-link">
-                Teacher Dashboard
+              <Link to="/student" className="header-link">
+                Student Dashboard
               </Link>
               <input
                 type="search"
@@ -294,7 +294,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="nav-section">
-              <div className="nav-title">Minhas perguntas</div>
+              <div className="nav-title">Perguntas dos alunos</div>
               <ul className="nav-list compact">
                 <li className="nav-chip">Dúvida: div vs section</li>
                 <li className="nav-chip">Scope do projeto</li>
@@ -332,7 +332,7 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* Keep FileUpload in DOM for tests, but visually hidden as header handles uploads */}
+            {/* Keep FileUpload in Dom for tests, but visually hidden as header handles uploads */}
             <section id="upload" className="upload-section compact hidden-upload" aria-hidden="true">
               <FileUpload
                 onFileSelect={handleFileSelect}
@@ -361,8 +361,8 @@ const App: React.FC = () => {
           {/* Right rail - concise course info */}
           <aside className="moodle-right">
             <div className="info-card">
-              <div className="info-title">Progresso do capítulo</div>
-              <div className="info-value">50%</div>
+              <div className="info-title">Atividade da turma</div>
+              <div className="info-value">24 alunos ativos</div>
             </div>
             <div className="info-card">
               <div className="info-title">Próximas entregas</div>
@@ -372,8 +372,8 @@ const App: React.FC = () => {
               </ul>
             </div>
             <div className="info-card">
-              <div className="info-title">Resumo das perguntas</div>
-              <div className="info-note">5 abertas • 2 com resposta do professor</div>
+              <div className="info-title">Respostas pendentes</div>
+              <div className="info-note">5 perguntas sem resposta</div>
             </div>
           </aside>
         </main>
@@ -441,4 +441,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default TeacherDashboard;

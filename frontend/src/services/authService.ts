@@ -1,4 +1,8 @@
-import axios from 'axios';
+declare global {
+  interface Window {
+    google: any;
+  }
+}
 
 export interface User {
   id: string;
@@ -7,148 +11,48 @@ export interface User {
   picture?: string;
 }
 
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface LoginResponse {
-  success: boolean;
-  user: User;
-  tokens: AuthTokens;
-}
-
 class AuthService {
-  private readonly API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-  private readonly ACCESS_TOKEN_KEY = 'bridgedu_access_token';
-  private readonly REFRESH_TOKEN_KEY = 'bridgedu_refresh_token';
+  private readonly GOOGLE_TOKEN_KEY = 'google_id_token';
+  private readonly USER_KEY = 'user_data';
 
-  constructor() {
-    // Set up axios interceptor for automatic token attachment
-    axios.interceptors.request.use((config) => {
-      const token = this.getAccessToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
-
-    // Set up axios interceptor for automatic token refresh
-    axios.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config;
-        
-        if (error.response?.status === 403 && !originalRequest._retry) {
-          originalRequest._retry = true;
-          
-          const refreshed = await this.refreshAccessToken();
-          if (refreshed) {
-            const token = this.getAccessToken();
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return axios(originalRequest);
-          }
-        }
-        
-        return Promise.reject(error);
-      }
-    );
-  }
-
-  async loginWithGoogle(googleToken: string): Promise<LoginResponse> {
+  loginWithGoogle(credential: string, userInfo: any): boolean {
     try {
-      const response = await axios.post(`${this.API_BASE_URL}/auth/google`, {
-        token: googleToken,
-      });
-
-      if (response.data.success) {
-        const { user, tokens } = response.data.data;
-        this.storeTokens(tokens);
-        return { success: true, user, tokens };
-      }
-
-      throw new Error('Login failed');
+      // Store the Google ID token and user info
+      localStorage.setItem(this.GOOGLE_TOKEN_KEY, credential);
+      localStorage.setItem(this.USER_KEY, JSON.stringify(userInfo));
+      return true;
     } catch (error) {
-      console.error('Google login error:', error);
-      throw error;
+      console.error('Login error:', error);
+      return false;
     }
   }
 
-  async getCurrentUser(): Promise<User | null> {
+  getCurrentUser(): User | null {
     try {
-      const token = this.getAccessToken();
-      if (!token) {
-        return null;
-      }
-
-      const response = await axios.get(`${this.API_BASE_URL}/auth/me`);
-      
-      if (response.data.success) {
-        return response.data.data.user;
-      }
-
-      return null;
+      const userData = localStorage.getItem(this.USER_KEY);
+      return userData ? JSON.parse(userData) : null;
     } catch (error) {
       console.error('Get current user error:', error);
       return null;
     }
   }
 
-  async refreshAccessToken(): Promise<boolean> {
-    try {
-      const refreshToken = this.getRefreshToken();
-      if (!refreshToken) {
-        return false;
-      }
+  getGoogleToken(): string | null {
+    return localStorage.getItem(this.GOOGLE_TOKEN_KEY);
+  }
 
-      const response = await axios.post(`${this.API_BASE_URL}/auth/refresh`, {
-        refreshToken,
-      });
-
-      if (response.data.success) {
-        const { accessToken } = response.data.data;
-        localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      return false;
+  logout(): void {
+    localStorage.removeItem(this.GOOGLE_TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    
+    // Sign out from Google
+    if (window.google) {
+      window.google.accounts.id.disableAutoSelect();
     }
-  }
-
-  async logout(): Promise<void> {
-    try {
-      // Call logout endpoint to log the action
-      await axios.post(`${this.API_BASE_URL}/auth/logout`);
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      this.clearTokens();
-    }
-  }
-
-  private storeTokens(tokens: AuthTokens): void {
-    localStorage.setItem(this.ACCESS_TOKEN_KEY, tokens.accessToken);
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, tokens.refreshToken);
-  }
-
-  private getAccessToken(): string | null {
-    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
-  }
-
-  private getRefreshToken(): string | null {
-    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
-  }
-
-  clearTokens(): void {
-    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
-    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
   }
 
   isAuthenticated(): boolean {
-    return !!this.getAccessToken();
+    return !!this.getGoogleToken() && !!this.getCurrentUser();
   }
 }
 

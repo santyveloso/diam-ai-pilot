@@ -5,9 +5,8 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (googleToken: string) => Promise<boolean>;
+  login: (googleToken: string, userInfo: User) => boolean;
   logout: () => void;
-  refreshToken: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,14 +31,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     // Check if user is already logged in on app start
-    const initializeAuth = async () => {
+    const initializeAuth = () => {
       try {
-        const currentUser = await authService.getCurrentUser();
+        const currentUser = authService.getCurrentUser();
         setUser(currentUser);
       } catch (error) {
         console.error('Failed to initialize auth:', error);
-        // Clear any invalid tokens
-        authService.clearTokens();
+        authService.logout();
       } finally {
         setIsLoading(false);
       }
@@ -48,12 +46,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (googleToken: string): Promise<boolean> => {
+  const login = (googleToken: string, userInfo: User): boolean => {
     try {
       setIsLoading(true);
-      const result = await authService.loginWithGoogle(googleToken);
-      if (result.success) {
-        setUser(result.user);
+      const success = authService.loginWithGoogle(googleToken, userInfo);
+      if (success) {
+        setUser(userInfo);
         return true;
       }
       return false;
@@ -70,28 +68,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
-  const refreshToken = async (): Promise<boolean> => {
-    try {
-      const success = await authService.refreshAccessToken();
-      if (!success) {
-        // If refresh fails, log out the user
-        logout();
-      }
-      return success;
-    } catch (error) {
-      console.error('Token refresh failed:', error);
-      logout();
-      return false;
-    }
-  };
-
   const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated,
     login,
     logout,
-    refreshToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

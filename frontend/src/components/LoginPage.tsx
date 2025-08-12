@@ -18,7 +18,16 @@ const LoginPage: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
-      const success = await login(credentialResponse.credential);
+      // Decode the JWT to get user info
+      const payload = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
+      const userInfo = {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture
+      };
+      
+      const success = login(credentialResponse.credential, userInfo);
       if (!success) {
         setError('Falha no login. Tente novamente.');
       }

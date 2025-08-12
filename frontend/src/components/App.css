@@ -101,6 +101,21 @@
 
 .actions-group { display: flex; align-items: center; gap: 0.5rem; }
 
+.header-link {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  padding: 0.5rem 0.875rem;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.header-link:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+}
+
 .app-header h1 {
   color: #1e40af;
   font-size: 3rem;
@@ -166,6 +181,25 @@
 .quick-ask-cta:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
 .quick-ask-cta:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
 .quick-ask-cta:disabled { background: #6ee7b7; color: #d1fae5; cursor: not-allowed; }
+
+.header-link {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  padding: 0.5rem 0.875rem;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+.header-link:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+}
+.header-link:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
 
 .profile-wrapper { position: relative; }
 .profile-avatar {

@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { uploadMiddleware } from '../middleware/upload';
 import { rateLimitMiddleware, getRateLimitStatus } from '../middleware/rateLimiter';
-import { optionalAuth, AuthenticatedRequest } from '../middleware/auth';
+import { verifyGoogleToken, AuthenticatedRequest } from '../middleware/googleAuth';
 import { PDFProcessor } from '../services/pdfProcessor';
 import { GeminiClient } from '../services/geminiClient';
 import { ErrorService } from '../services/errorService';
@@ -17,7 +17,7 @@ let geminiClient: GeminiClient;
  * Main endpoint for processing questions with PDF context
  * Rate limited to 2 requests per minute per session
  */
-router.post('/ask', optionalAuth, rateLimitMiddleware, uploadMiddleware.single('file'), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.post('/ask', rateLimitMiddleware, uploadMiddleware.single('file'), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   let uploadedFilePath: string | undefined;
 
   try {
