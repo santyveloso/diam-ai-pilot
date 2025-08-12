@@ -457,6 +457,36 @@
   font-weight: 500;
 }
 
+.activity-chart {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  height: 120px;
+  margin-top: 1rem;
+  padding: 0 1rem;
+}
+
+.chart-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 40px;
+}
+
+.chart-bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.3s ease;
+}
+
+.chart-label {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
 .chart-value {
   margin-top: 0.25rem;
   font-size: 0.75rem;
@@ -822,6 +852,36 @@ textarea:focus,
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 500;
+}
+
+.activity-chart {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  height: 120px;
+  margin-top: 1rem;
+  padding: 0 1rem;
+}
+
+.chart-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 40px;
+}
+
+.chart-bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.3s ease;
+}
+
+.chart-label {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
 }
 
 .chart-value {
@@ -2145,69 +2205,4 @@ Responsive Design Improvements */
   .header-bar {
     padding: 0 8px;
   }
-}
-
-/* Heatmap color classes */
-.heatmap-high {
-  background-color: #ef4444; /* red-500 equivalent */
-}
-
-.heatmap-medium-high {
-  background-color: #f97316; /* orange-500 equivalent */
-}
-
-.heatmap-medium {
-  background-color: #eab308; /* yellow-500 equivalent */
-}
-
-.heatmap-low {
-  background-color: #22c55e; /* green-500 equivalent */
-}
-
-/* Enhanced Activity Chart Styles */
-.activity-chart {
-  display: flex;
-  justify-content: space-between;
-  height: 180px;
-  margin-top: 1rem;
-  padding: 1rem;
-  background: linear-gradient(to top, rgba(241, 245, 249, 0.7) 1px, transparent 1px);
-  background-size: 100% 20px;
-  position: relative;
-  align-items: flex-end;
-}
-
-.chart-bar-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  max-width: 50px;
-  height: 100%;
-}
-
-.chart-bar {
-  width: 70%;
-  border-radius: 4px 4px 0 0;
-  transition: height 0.5s ease, background-color 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.chart-label {
-  margin-top: 0.75rem;
-  font-size: 0.75rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.chart-value {
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #1e293b;
-  background: white;
-  padding: 2px 6px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }

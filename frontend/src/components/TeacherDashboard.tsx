@@ -25,6 +25,21 @@ interface AppState {
   quickAskText: string;
 }
 
+// Mock data for teacher dashboard statistics
+interface ChapterStats {
+  id: string;
+  name: string;
+  questionCount: number;
+  avgQuestionsPerStudent: number;
+  difficulty: number; // 1-10 scale
+  commonTopics: string[];
+}
+
+interface StudentActivity {
+  date: string;
+  questions: number;
+}
+
 const TeacherDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -51,6 +66,53 @@ const TeacherDashboard: React.FC = () => {
     quickAskPreset: "hints",
     quickAskText: "",
   });
+
+  // Mock data for chapter statistics
+  const chapterStats: ChapterStats[] = [
+    {
+      id: "ch1",
+      name: "Chapter 1 - HTML",
+      questionCount: 42,
+      avgQuestionsPerStudent: 1.8,
+      difficulty: 3,
+      commonTopics: ["Semantic tags", "Structure", "Forms"],
+    },
+    {
+      id: "ch2",
+      name: "Chapter 2 - CSS & JS",
+      questionCount: 78,
+      avgQuestionsPerStudent: 3.2,
+      difficulty: 7,
+      commonTopics: ["Flexbox", "Selectors", "Event handling"],
+    },
+    {
+      id: "project",
+      name: "Project",
+      questionCount: 35,
+      avgQuestionsPerStudent: 1.5,
+      difficulty: 8,
+      commonTopics: ["Scope", "Requirements", "Implementation"],
+    },
+    {
+      id: "assessments",
+      name: "Assessments",
+      questionCount: 28,
+      avgQuestionsPerStudent: 1.2,
+      difficulty: 5,
+      commonTopics: ["Grading", "Exams", "Criteria"],
+    },
+  ];
+
+  // Mock data for student activity (last 7 days)
+  const studentActivity: StudentActivity[] = [
+    { date: "Mon", questions: 12 },
+    { date: "Tue", questions: 18 },
+    { date: "Wed", questions: 9 },
+    { date: "Thu", questions: 22 },
+    { date: "Fri", questions: 15 },
+    { date: "Sat", questions: 7 },
+    { date: "Sun", questions: 5 },
+  ];
 
   const chapters = [
     { id: "general", label: "General" },
@@ -188,6 +250,42 @@ const TeacherDashboard: React.FC = () => {
     },
     [state.language]
   );
+
+  // Get stats for selected chapter
+  const selectedChapterStats = chapterStats.find(
+    (stats) => stats.id === state.selectedChapter
+  );
+
+  // Render heatmap cells
+  const renderHeatmapCell = (stats: ChapterStats) => {
+    const isSelected = stats.id === state.selectedChapter;
+    let bgColorClass = "";
+    
+    if (stats.questionCount > 60) {
+      bgColorClass = "heatmap-high";
+    } else if (stats.questionCount > 40) {
+      bgColorClass = "heatmap-medium-high";
+    } else if (stats.questionCount > 20) {
+      bgColorClass = "heatmap-medium";
+    } else {
+      bgColorClass = "heatmap-low";
+    }
+
+    return (
+      <div
+        key={stats.id}
+        className={`p-3 rounded-lg cursor-pointer transition-all ${
+          isSelected ? "ring-2 ring-blue-500 scale-105" : ""
+        } ${bgColorClass} text-white`}
+        onClick={() =>
+          setState((prev) => ({ ...prev, selectedChapter: stats.id }))
+        }
+      >
+        <div className="font-bold text-sm">{stats.name}</div>
+        <div className="text-xs mt-1">{stats.questionCount} questions</div>
+      </div>
+    );
+  };
 
   return (
     <div className="app">
@@ -399,6 +497,110 @@ const TeacherDashboard: React.FC = () => {
               </div>
             )}
 
+            {/* Teacher Dashboard Statistics */}
+            <section className="dashboard-section">
+              <div className="stats-grid">
+                {/* Heatmap visualization */}
+                <div className="info-card span-cols">
+                  <div className="info-title">Student Activity Heatmap</div>
+                  <div className="heatmap-grid">
+                    {chapterStats.map(renderHeatmapCell)}
+                  </div>
+                  <div className="heatmap-legend">
+                    <div className="text-xs text-gray-600">
+                      Areas with more questions indicate topics where students need more help
+                    </div>
+                  </div>
+                </div>
+
+                {/* Chapter Statistics */}
+                {selectedChapterStats && (
+                  <>
+                    <div className="info-card">
+                      <div className="info-title">Questions This Chapter</div>
+                      <div className="info-value text-3xl">
+                        {selectedChapterStats.questionCount}
+                      </div>
+                      <div className="info-note">
+                        {selectedChapterStats.avgQuestionsPerStudent.toFixed(1)} per student
+                      </div>
+                    </div>
+
+                    <div className="info-card">
+                      <div className="info-title">Difficulty Level</div>
+                      <div className="difficulty-bar">
+                        <div className="difficulty-track">
+                          <div
+                            className="difficulty-fill"
+                            style={{
+                              width: `${selectedChapterStats.difficulty * 10}%`,
+                              backgroundColor:
+                                selectedChapterStats.difficulty > 7
+                                  ? "#ef4444"
+                                  : selectedChapterStats.difficulty > 4
+                                  ? "#f59e0b"
+                                  : "#10b981",
+                            }}
+                          ></div>
+                        </div>
+                        <div className="difficulty-label">
+                          {selectedChapterStats.difficulty}/10
+                        </div>
+                      </div>
+                      <div className="info-note">
+                        Based on question complexity
+                      </div>
+                    </div>
+
+                    <div className="info-card">
+                      <div className="info-title">Common Topics</div>
+                      <div className="topic-tags">
+                        {selectedChapterStats.commonTopics.map((topic, index) => (
+                          <span key={index} className="topic-tag">
+                            {topic}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="info-note mt-2">
+                        Students frequently ask about these concepts
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Student Activity Chart */}
+                <div className="info-card span-cols">
+                  <div className="info-title">Student Activity (Last 7 Days)</div>
+                  <div className="activity-chart">
+                    {studentActivity.map((day, index) => {
+                      // Find the maximum value for scaling
+                      const maxValue = Math.max(...studentActivity.map(d => d.questions));
+                      const heightPercentage = maxValue > 0 ? (day.questions / maxValue) * 100 : 0;
+                      
+                      return (
+                        <div key={index} className="chart-bar-container">
+                          <div
+                            className="chart-bar"
+                            style={{
+                              height: `${heightPercentage}%`,
+                              backgroundColor:
+                                day.questions > 15
+                                  ? "#ef4444"
+                                  : day.questions > 10
+                                  ? "#f59e0b"
+                                  : "#10b981",
+                            }}
+                          ></div>
+                          <div className="chart-label">{day.date}</div>
+                          <div className="chart-value">{day.questions}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </section>
+
             <section className="question-section">
               <QuestionInput
                 onSubmit={handleQuestionSubmit}
@@ -436,6 +638,25 @@ const TeacherDashboard: React.FC = () => {
             <div className="info-card">
               <div className="info-title">Respostas pendentes</div>
               <div className="info-note">5 perguntas sem resposta</div>
+            </div>
+            
+            {/* Additional teacher insights */}
+            <div className="info-card">
+              <div className="info-title">Insights</div>
+              <ul className="info-list">
+                <li className="insight-item high">
+                  <span className="insight-icon">⚠️</span>
+                  <span>Chapter 2 has 3x more questions than others</span>
+                </li>
+                <li className="insight-item medium">
+                  <span className="insight-icon">📈</span>
+                  <span>Activity increased this week</span>
+                </li>
+                <li className="insight-item low">
+                  <span className="insight-icon">✅</span>
+                  <span>Project questions decreasing</span>
+                </li>
+              </ul>
             </div>
           </aside>
         </main>
