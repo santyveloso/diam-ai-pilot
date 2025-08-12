@@ -9,6 +9,7 @@ backend/dist/
 
 # Environment variables
 backend/.env
+frontend/.env
 
 # Logs
 *.log

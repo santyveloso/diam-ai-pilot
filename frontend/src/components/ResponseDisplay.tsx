@@ -109,12 +109,13 @@ const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
         </div>
         <div className="response-content">
           <div className="response-text">
-            <div 
-              className="formatted-response"
-              dangerouslySetInnerHTML={{ 
-                __html: formatResponse(response) 
-              }}
-            />
+            <div className="formatted-response">
+              {response.split('\n').map((line, index) => (
+                <p key={index} style={{ margin: '0.5rem 0' }}>
+                  {line.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1')}
+                </p>
+              ))}
+            </div>
           </div>
           <div className="response-footer">
             <div className="response-actions">

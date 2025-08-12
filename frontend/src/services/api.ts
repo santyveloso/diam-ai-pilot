@@ -10,14 +10,33 @@ const api = axios.create({
 });
 
 // Add Google token to requests
-api.interceptors.request.use((config) => {
-  const token = authService.getGoogleToken();
-  if (token) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(
+  (config) => {
+    const token = authService.getGoogleToken();
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid, redirect to login
+      authService.logout();
+      window.location.href = '/';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const askQuestion = async (question: string, file: File): Promise<AskResponse> => {
   const formData = new FormData();

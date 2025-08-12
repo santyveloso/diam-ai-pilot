@@ -17,7 +17,7 @@ let geminiClient: GeminiClient;
  * Main endpoint for processing questions with PDF context
  * Rate limited to 2 requests per minute per session
  */
-router.post('/ask', rateLimitMiddleware, uploadMiddleware.single('file'), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.post('/ask', rateLimitMiddleware, verifyGoogleToken, uploadMiddleware.single('file'), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   let uploadedFilePath: string | undefined;
 
   try {
@@ -25,8 +25,8 @@ router.post('/ask', rateLimitMiddleware, uploadMiddleware.single('file'), async 
     const { question }: AskRequest = req.body;
     const file = req.file;
 
-    // Use error service for validation
-    ErrorService.validateQuestion(question);
+    // Use error service for validation and sanitization
+    const sanitizedQuestion = ErrorService.validateQuestion(question);
     ErrorService.validateFileUpload(file);
 
     uploadedFilePath = file!.path;
@@ -43,9 +43,9 @@ router.post('/ask', rateLimitMiddleware, uploadMiddleware.single('file'), async 
       geminiClient = new GeminiClient();
     }
 
-    // Create question context
+    // Create question context with sanitized question
     const questionContext = geminiClient.createQuestionContext(
-      question,
+      sanitizedQuestion,
       processedFile.textContent
     );
 

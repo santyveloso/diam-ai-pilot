@@ -37,8 +37,18 @@ export class PDFProcessor {
    */
   static async extractText(filePath: string): Promise<string> {
     try {
+      // Validate file path to prevent directory traversal
+      const path = require('path');
+      const uploadDir = path.resolve('uploads/');
+      const resolvedPath = path.resolve(filePath);
+      
+      if (!resolvedPath.startsWith(uploadDir)) {
+        throw ErrorService.createError('INVALID_FILE_PATH', 
+          'File path is not within allowed directory');
+      }
+
       // Read the PDF file
-      const dataBuffer = await fs.readFile(filePath);
+      const dataBuffer = await fs.readFile(resolvedPath);
       
       // Parse PDF and extract text
       const pdfData = await pdfParse(dataBuffer);
@@ -93,13 +103,27 @@ export class PDFProcessor {
   }
 
   /**
-   * Cleans up temporary uploaded file
+   * Cleans up temporary uploaded file with retry logic
    */
-  static async cleanupFile(filePath: string): Promise<void> {
-    try {
-      await fs.unlink(filePath);
-    } catch (error) {
-      console.warn(`Failed to cleanup file ${filePath}:`, error);
+  static async cleanupFile(filePath: string, retries: number = 3): Promise<void> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        await fs.unlink(filePath);
+        return; // Success, exit early
+      } catch (error: any) {
+        if (error.code === 'ENOENT') {
+          // File doesn't exist, consider it cleaned up
+          return;
+        }
+        
+        if (attempt === retries) {
+          console.error(`Failed to cleanup file ${filePath} after ${retries} attempts:`, error);
+        } else {
+          console.warn(`Cleanup attempt ${attempt} failed for ${filePath}, retrying...`);
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+        }
+      }
     }
   }
 

@@ -127,6 +127,15 @@ export class ErrorService {
       },
       retryable: false,
       severity: 'low' as ErrorSeverity
+    },
+    INVALID_FILE_PATH: {
+      statusCode: 400,
+      userMessage: {
+        en: 'Invalid file path detected.',
+        pt: 'Caminho de arquivo inválido detectado.'
+      },
+      retryable: false,
+      severity: 'high' as ErrorSeverity
     }
   };
 
@@ -335,9 +344,9 @@ export class ErrorService {
   }
 
   /**
-   * Validates question input
+   * Sanitizes and validates question input
    */
-  static validateQuestion(question: any): void {
+  static validateQuestion(question: any): string {
     if (!question) {
       throw this.createError('MISSING_QUESTION');
     }
@@ -347,14 +356,40 @@ export class ErrorService {
         'Question must be a string');
     }
 
-    if (question.trim().length === 0) {
+    // Sanitize input: remove control characters and normalize whitespace
+    const sanitized = question
+      .replace(/[\x00-\x1F\x7F]/g, '') // Remove control characters
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+
+    if (sanitized.length === 0) {
       throw this.createError('MISSING_QUESTION', 
         'Question cannot be empty');
     }
 
-    if (question.length > 1000) {
+    if (sanitized.length < 10) {
+      throw this.createError('INVALID_QUESTION', 
+        'Question must be at least 10 characters long');
+    }
+
+    if (sanitized.length > 1000) {
       throw this.createError('INVALID_QUESTION', 
         'Question is too long (max 1000 characters)');
     }
+
+    // Check for potential injection patterns
+    const suspiciousPatterns = [
+      /<script/i,
+      /javascript:/i,
+      /on\w+\s*=/i,
+      /data:text\/html/i
+    ];
+
+    if (suspiciousPatterns.some(pattern => pattern.test(sanitized))) {
+      throw this.createError('INVALID_QUESTION', 
+        'Question contains invalid characters');
+    }
+
+    return sanitized;
   }
 }

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import './LoginPage.css';
+import React, { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import "./LoginPage.css";
 
 declare global {
   interface Window {
@@ -17,23 +17,59 @@ const LoginPage: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Decode the JWT to get user info
-      const payload = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
+
+      // Safely decode the JWT to get user info
+      if (!credentialResponse || !credentialResponse.credential) {
+        throw new Error("Invalid credential response");
+      }
+
+      const tokenParts = credentialResponse.credential.split(".");
+      if (tokenParts.length < 2) {
+        throw new Error("Malformed JWT token");
+      }
+
+      // Convert base64url to standard base64
+      let base64Payload = tokenParts[1];
+      base64Payload = base64Payload.replace(/-/g, "+").replace(/_/g, "/");
+
+      // Add padding if needed
+      const padding = base64Payload.length % 4;
+      if (padding) {
+        base64Payload += "=".repeat(4 - padding);
+      }
+
+      // Safely decode the payload
+      let payload: any;
+      try {
+        const decodedString = atob(base64Payload);
+        payload = JSON.parse(decodedString);
+      } catch (decodeError) {
+        console.error("JWT decode error:", decodeError);
+        throw new Error("Failed to decode JWT token");
+      }
+
+      // Validate required fields
+      if (!payload.sub || !payload.email || !payload.name) {
+        console.error("Missing required JWT fields:", payload);
+        throw new Error("Invalid JWT payload - missing required fields");
+      }
+
       const userInfo = {
         id: payload.sub,
         email: payload.email,
         name: payload.name,
-        picture: payload.picture
+        picture: payload.picture || null,
       };
-      
+
       const success = login(credentialResponse.credential, userInfo);
       if (!success) {
-        setError('Falha no login. Tente novamente.');
+        setError("Falha no login. Tente novamente.");
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setError('Erro durante o login. Verifique sua conexão e tente novamente.');
+      console.error("Login error:", error);
+      setError(
+        "Erro durante o login. Verifique sua conexão e tente novamente."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -41,8 +77,8 @@ const LoginPage: React.FC = () => {
 
   React.useEffect(() => {
     // Load Google Identity Services
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
     document.head.appendChild(script);
@@ -57,14 +93,14 @@ const LoginPage: React.FC = () => {
         });
 
         window.google.accounts.id.renderButton(
-          document.getElementById('google-signin-button'),
+          document.getElementById("google-signin-button"),
           {
-            theme: 'outline',
-            size: 'large',
+            theme: "outline",
+            size: "large",
             width: 280,
-            text: 'signin_with',
-            shape: 'rectangular',
-            logo_alignment: 'left',
+            text: "signin_with",
+            shape: "rectangular",
+            logo_alignment: "left",
           }
         );
       }
@@ -91,7 +127,10 @@ const LoginPage: React.FC = () => {
             <div className="login-content">
               <div className="login-welcome">
                 <h2>Bem-vindo ao BridgEdu</h2>
-                <p>Faça login com sua conta Google para acessar o assistente de IA do curso DIAM</p>
+                <p>
+                  Faça login com sua conta Google para acessar o assistente de
+                  IA do curso DIAM
+                </p>
               </div>
 
               {error && (

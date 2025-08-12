@@ -211,8 +211,33 @@ export function getActiveSessions(): Array<{
     }));
 }
 
-// Start cleanup interval
+// Start cleanup interval with better memory management
 if (process.env.NODE_ENV !== 'test') {
-  setInterval(cleanupExpiredEntries, RATE_LIMIT_CONFIG.cleanupIntervalMs);
+  const cleanupInterval = setInterval(() => {
+    try {
+      cleanupExpiredEntries();
+      
+      // Additional safety: limit total entries to prevent memory issues
+      const totalEntries = Object.keys(rateLimitStore).length;
+      if (totalEntries > 10000) {
+        console.warn(`Rate limit store has ${totalEntries} entries, forcing cleanup`);
+        // Keep only the most recent 5000 entries
+        const entries = Object.entries(rateLimitStore)
+          .sort(([,a], [,b]) => b.windowStart - a.windowStart)
+          .slice(0, 5000);
+        
+        // Clear store and repopulate with recent entries
+        Object.keys(rateLimitStore).forEach(key => delete rateLimitStore[key]);
+        entries.forEach(([key, value]) => rateLimitStore[key] = value);
+      }
+    } catch (error) {
+      console.error('Rate limiter cleanup error:', error);
+    }
+  }, RATE_LIMIT_CONFIG.cleanupIntervalMs);
+  
+  // Ensure cleanup interval is cleared on process exit
+  process.on('SIGTERM', () => clearInterval(cleanupInterval));
+  process.on('SIGINT', () => clearInterval(cleanupInterval));
+  
   console.log(`Rate limiter initialized: ${RATE_LIMIT_CONFIG.maxRequests} requests per ${RATE_LIMIT_CONFIG.windowMs / 1000}s per session`);
 }

@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import { OAuth2Client } from 'google-auth-library';
+import { env } from '../config/environment';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -8,6 +10,9 @@ export interface AuthenticatedRequest extends Request {
     picture?: string;
   };
 }
+
+// Initialize Google OAuth2 client for token verification
+const client = new OAuth2Client(env.googleClientId);
 
 export const verifyGoogleToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
@@ -25,10 +30,39 @@ export const verifyGoogleToken = async (req: AuthenticatedRequest, res: Response
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     
-    // For now, we'll just decode the JWT without verification
-    // In production, you'd want to verify the token with Google
     try {
-      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      // Verify the Google ID token using Google Auth Library
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: env.googleClientId, // Verify audience matches our client ID
+      });
+
+      const payload = ticket.getPayload();
+      
+      if (!payload) {
+        throw new Error('Invalid token payload');
+      }
+
+      // Validate required fields
+      if (!payload.sub || !payload.email || !payload.name) {
+        throw new Error('Missing required JWT fields');
+      }
+
+      // Verify issuer is Google
+      if (payload.iss !== 'accounts.google.com' && payload.iss !== 'https://accounts.google.com') {
+        throw new Error('Invalid token issuer');
+      }
+
+      // Additional security: verify email is verified
+      if (!payload.email_verified) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'EMAIL_NOT_VERIFIED',
+            message: 'Email address must be verified'
+          }
+        });
+      }
       
       req.user = {
         id: payload.sub,
@@ -38,12 +72,13 @@ export const verifyGoogleToken = async (req: AuthenticatedRequest, res: Response
       };
       
       next();
-    } catch (decodeError) {
+    } catch (verifyError) {
+      console.error('Token verification error:', verifyError);
       return res.status(401).json({
         success: false,
         error: {
           code: 'INVALID_TOKEN',
-          message: 'Invalid token format'
+          message: 'Invalid or expired token'
         }
       });
     }

@@ -4,7 +4,7 @@ import { ErrorService } from "./errorService";
 
 export class GeminiClient {
   private genAI: GoogleGenerativeAI;
-  private model: any; // TODO: Type this properly when @google/generative-ai exports proper types
+  private model: any; // Using any due to @google/generative-ai type limitations
 
   constructor(apiKey?: string) {
     const key = apiKey || process.env.GEMINI_API_KEY;
