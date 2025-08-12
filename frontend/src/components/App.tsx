@@ -5,6 +5,7 @@ import ResponseDisplay from './ResponseDisplay';
 import { askQuestion } from '../services/api';
 import { ErrorService } from '../services/errorService';
 import { EnhancedError } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 import './App.css';
 
 // Application state interface
@@ -24,6 +25,8 @@ interface AppState {
 }
 
 const App: React.FC = () => {
+  const { user, logout } = useAuth();
+  
   // Detect browser language
   const detectLanguage = (): 'en' | 'pt' => {
     const browserLang = navigator.language.toLowerCase();
@@ -217,28 +220,40 @@ const App: React.FC = () => {
                   aria-expanded={state.isProfileOpen}
                   onClick={() => setState((prev) => ({ ...prev, isProfileOpen: !prev.isProfileOpen }))}
                 >
-                  <span aria-hidden>👤</span>
+                  {user?.picture ? (
+                    <img 
+                      src={user.picture} 
+                      alt={user.name}
+                      className="profile-image"
+                    />
+                  ) : (
+                    <span aria-hidden>👤</span>
+                  )}
                 </button>
                 {state.isProfileOpen && (
                   <div className="profile-menu" role="menu">
+                    <div className="profile-info">
+                      <div className="profile-name">{user?.name}</div>
+                      <div className="profile-email">{user?.email}</div>
+                    </div>
+                    <div className="menu-divider"></div>
                     <button className="menu-item" role="menuitem" onClick={() => {
+                      setState((prev) => ({ ...prev, isProfileOpen: false }));
                       // Navigate to profile page
                       console.log('Navigate to profile');
-                      // Add actual navigation logic here
                     }}>
                       Perfil
                     </button>
                     <button className="menu-item" role="menuitem" onClick={() => {
+                      setState((prev) => ({ ...prev, isProfileOpen: false }));
                       // Open settings modal
                       console.log('Open settings modal');
-                      // Add settings modal logic here
                     }}>
                       Definições
                     </button>
-                    <button className="menu-item" role="menuitem" onClick={() => {
-                      // Trigger logout functionality
-                      console.log('Logout triggered');
-                      // Add actual logout logic here
+                    <button className="menu-item logout-item" role="menuitem" onClick={() => {
+                      setState((prev) => ({ ...prev, isProfileOpen: false }));
+                      logout();
                     }}>
                       Sair
                     </button>

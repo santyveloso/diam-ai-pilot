@@ -17,6 +17,10 @@ export interface EnvironmentConfig {
   requestTimeout: number;
   rateLimitWindowMs: number;
   rateLimitMaxRequests: number;
+  jwtSecret: string;
+  googleClientId: string;
+  googleClientSecret: string;
+  googleRedirectUri: string;
 }
 
 const getEnvVar = (key: string, defaultValue?: string): string => {
@@ -56,6 +60,10 @@ export const env: EnvironmentConfig = {
   requestTimeout: getEnvNumber('REQUEST_TIMEOUT', 30000),
   rateLimitWindowMs: getEnvNumber('RATE_LIMIT_WINDOW_MS', 900000), // 15 minutes
   rateLimitMaxRequests: getEnvNumber('RATE_LIMIT_MAX_REQUESTS', 100),
+  jwtSecret: getEnvVar('JWT_SECRET', process.env.NODE_ENV === 'test' ? 'test-jwt-secret' : ''),
+  googleClientId: getEnvVar('GOOGLE_CLIENT_ID', ''),
+  googleClientSecret: getEnvVar('GOOGLE_CLIENT_SECRET', ''),
+  googleRedirectUri: getEnvVar('GOOGLE_REDIRECT_URI', 'http://localhost:3000'),
 };
 
 // Validate critical environment variables
@@ -64,6 +72,18 @@ export const validateEnvironment = (): void => {
 
   if (!env.geminiApiKey && env.nodeEnv !== 'test') {
     errors.push('GEMINI_API_KEY is required for non-test environments');
+  }
+
+  if (!env.jwtSecret && env.nodeEnv !== 'test') {
+    errors.push('JWT_SECRET is required for non-test environments');
+  }
+
+  if (!env.googleClientId && env.nodeEnv !== 'test') {
+    errors.push('GOOGLE_CLIENT_ID is required for non-test environments');
+  }
+
+  if (!env.googleClientSecret && env.nodeEnv !== 'test') {
+    errors.push('GOOGLE_CLIENT_SECRET is required for non-test environments');
   }
 
   if (env.maxFileSize <= 0) {
@@ -91,4 +111,7 @@ export const logEnvironmentInfo = (): void => {
   console.log(`- Request Logging: ${env.enableRequestLogging ? 'enabled' : 'disabled'}`);
   console.log(`- Performance Monitoring: ${env.enablePerformanceMonitoring ? 'enabled' : 'disabled'}`);
   console.log(`- Gemini API Key: ${env.geminiApiKey ? 'configured' : 'not configured'}`);
+  console.log(`- JWT Secret: ${env.jwtSecret ? 'configured' : 'not configured'}`);
+  console.log(`- Google OAuth: ${env.googleClientId && env.googleClientSecret ? 'configured' : 'not configured'}`);
+  console.log(`- Google Redirect URI: ${env.googleRedirectUri}`);
 };

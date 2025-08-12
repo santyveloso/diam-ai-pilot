@@ -171,14 +171,23 @@
 .profile-avatar {
   width: 48px; height: 48px; border-radius: 999px; border: 1px solid #e2e8f0;
   display: flex; align-items: center; justify-content: center; background: #f8fafc;
+  overflow: hidden; cursor: pointer; transition: all 0.2s ease;
 }
+.profile-avatar:hover { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+.profile-image { width: 100%; height: 100%; object-fit: cover; }
 .profile-menu {
   position: absolute; right: 0; top: 56px; background: white; border: 1px solid #e2e8f0; border-radius: 10px;
-  box-shadow: 0 8px 30px rgba(15,23,42,0.12); padding: 0.5rem; min-width: 160px;
+  box-shadow: 0 8px 30px rgba(15,23,42,0.12); padding: 0.5rem; min-width: 200px;
   z-index: 100; margin-top: 0.25rem;
 }
-.menu-item { width: 100%; text-align: left; background: transparent; padding: 0.5rem 0.75rem; border-radius: 8px; }
+.profile-info { padding: 0.75rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 0.5rem; }
+.profile-name { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
+.profile-email { font-size: 0.85rem; color: #64748b; margin-top: 0.25rem; }
+.menu-divider { height: 1px; background: #f1f5f9; margin: 0.5rem 0; }
+.menu-item { width: 100%; text-align: left; background: transparent; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.9rem; }
 .menu-item:hover { background: #f1f5f9; }
+.logout-item { color: #dc2626; }
+.logout-item:hover { background: #fef2f2; }
 
 /* removed feature-badges */
 
@@ -441,6 +450,45 @@
   .response-section {
     padding: 0.75rem;
   }
+}
+
+/* Loading Screen Styles */
+.loading-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(1000px 600px at 10% -10%, rgba(59, 130, 246, 0.08), transparent 60%),
+              radial-gradient(800px 500px at 110% 10%, rgba(16, 185, 129, 0.07), transparent 55%),
+              linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.loading-container .loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(59, 130, 246, 0.1);
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-container p {
+  margin: 0;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 1.1rem;
 }
 
 /* Touch device optimizations */

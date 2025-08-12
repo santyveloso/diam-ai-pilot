@@ -4,6 +4,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { handleMulterError } from './middleware/upload';
 import { requestIdMiddleware, performanceMiddleware, errorTrackingMiddleware } from './middleware/monitoring';
 import apiRoutes from './routes/api';
+import authRoutes from './routes/auth';
 import { env, validateEnvironment, logEnvironmentInfo } from './config/environment';
 import { logger } from './services/logger';
 
@@ -60,6 +61,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api', apiRoutes);
+app.use('/auth', authRoutes);
 
 // Multer error handling middleware
 app.use(handleMulterError);

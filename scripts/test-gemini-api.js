@@ -6,6 +6,7 @@
  */
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const https = require("https");
 require("dotenv").config({ path: "../backend/.env" });
 
 async function testGeminiConnection() {
@@ -35,7 +36,7 @@ async function testGeminiConnection() {
     const result = await model.generateContent(
       'Say "Hello" if you can respond.'
     );
-    const response = await result.response;
+    const response = result.response;
     const text = response.text();
 
     if (text && text.trim().length > 0) {
@@ -51,7 +52,7 @@ async function testGeminiConnection() {
     const complexResult = await model.generateContent(
       "Explain what artificial intelligence is in one sentence."
     );
-    const complexResponse = await complexResult.response;
+    const complexResponse = complexResult.response;
     const complexText = complexResponse.text();
 
     if (complexText && complexText.trim().length > 10) {
@@ -64,11 +65,11 @@ async function testGeminiConnection() {
     }
 
     // Test 3: Portuguese language test
-    console.log("\n🇧🇷 Testing Portuguese language support...");
+    console.log("\n🇵🇹 Testing Portuguese language support...");
     const ptResult = await model.generateContent(
-      "Responda em português: O que é inteligência artificial?"
+      "Responda em português de forma concisa: O que é inteligência artificial? Use apenas 1-2 frases."
     );
-    const ptResponse = await ptResult.response;
+    const ptResponse = ptResult.response;
     const ptText = ptResponse.text();
 
     if (ptText && ptText.trim().length > 10) {
@@ -119,8 +120,6 @@ async function testNetworkConnectivity() {
   console.log("🌐 Testing network connectivity...");
 
   try {
-    const https = require("https");
-
     return new Promise((resolve, reject) => {
       const req = https.request(
         "https://generativelanguage.googleapis.com",
