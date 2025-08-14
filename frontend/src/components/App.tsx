@@ -7,7 +7,7 @@ import { askQuestion } from "../services/api";
 import { ErrorService } from "../services/errorService";
 import { EnhancedError } from "../types";
 import { useAuth } from "../contexts/AuthContext";
-import "./App.css";
+import "../styles/index.css";
 
 // Application state interface
 interface AppState {

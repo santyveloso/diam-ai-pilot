@@ -1,0 +1,101 @@
+/* CSS Reset and Base Styles */
+
+/* Enhanced focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Smooth animations */
+* {
+  transition: var(--transition-fast);
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-gray-100);
+  border-radius: var(--border-radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--color-gray-300) 0%, var(--color-gray-400) 100%);
+  border-radius: var(--border-radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--color-gray-400) 0%, var(--color-gray-500) 100%);
+}
+
+/* Focus and Accessibility */
+button:focus,
+input:focus,
+textarea:focus,
+[role="button"]:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .app {
+    background-color: var(--color-white);
+  }
+  
+  .upload-section,
+  .question-section,
+  .response-section {
+    border: 2px solid #000;
+  }
+  
+  .file-upload-area {
+    border: 3px dashed #000;
+  }
+  
+  .question-textarea {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .upload-spinner,
+  .response-spinner,
+  .loading-spinner {
+    animation: none;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .file-upload-area {
+    min-height: 140px;
+    padding: 2.5rem var(--spacing-lg);
+  }
+  
+  .submit-button {
+    min-height: 48px;
+    padding: var(--spacing-xl) var(--spacing-2xl);
+  }
+  
+  .clear-file-button,
+  .clear-question-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .error-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

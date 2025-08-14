@@ -18,9 +18,15 @@ frontend/
 ├── src/
 │   ├── components/          # React components
 │   │   ├── App.tsx         # Main application container
-│   │   ├── FileUpload.tsx  # PDF upload component
-│   │   ├── QuestionInput.tsx # Question input form
+│   │   ├── FileUpload.tsx  # PDF upload component (teachers)
+│   │   ├── QuestionInput.tsx # Question input form (students)
 │   │   └── ResponseDisplay.tsx # AI response display
+│   ├── styles/             # Modular CSS architecture
+│   │   ├── index.css       # Main CSS entry point
+│   │   ├── base/           # Variables, resets, global styles
+│   │   ├── components/     # Component-specific styles
+│   │   ├── layout/         # Layout and grid systems
+│   │   └── utilities/      # Utility classes and animations
 │   ├── services/           # API communication
 │   │   └── api.ts          # HTTP client for backend
 │   ├── types/              # TypeScript type definitions

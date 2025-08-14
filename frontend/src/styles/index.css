@@ -1,0 +1,67 @@
+/* Main CSS Entry Point - Modular CSS Architecture */
+
+/* Base Styles */
+@import './base/variables.css';
+@import './base/reset.css';
+
+/* Layout Styles */
+@import './layout/main.css';
+
+/* Component Styles */
+@import './components/modal.css';
+@import './components/header.css';
+@import './components/file-upload.css';
+@import './components/question-input.css';
+@import './components/error-banner.css';
+@import './components/navigation.css';
+@import './components/dashboard.css';
+
+/* Utility Styles */
+@import './utilities/buttons.css';
+@import './utilities/animations.css';
+@import './utilities/tailwind-like.css';
+
+/* Placeholder Styles (temporary for development) */
+.file-upload-placeholder,
+.question-input-placeholder,
+.response-display-placeholder {
+  padding: var(--spacing-lg);
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: var(--border-radius-md);
+  text-align: center;
+  color: #6c757d;
+}
+
+.selected-file-info {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-sm);
+  background-color: #e8f5e8;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-file-info button {
+  background-color: #dc3545;
+  color: var(--color-white);
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+}
+
+.selected-file-info button:hover {
+  background-color: #c82333;
+}
+
+/* Responsive adjustments for selected file info */
+@media (max-width: 768px) {
+  .selected-file-info {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+}

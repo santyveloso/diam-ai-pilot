@@ -6,7 +6,7 @@ import { askQuestion } from "../services/api";
 import { ErrorService } from "../services/errorService";
 import { EnhancedError } from "../types";
 import { useAuth } from "../contexts/AuthContext";
-import "./App.css";
+import "../styles/index.css";
 
 // Application state interface
 interface AppState {
@@ -463,12 +463,32 @@ const TeacherDashboard: React.FC = () => {
           </aside>
 
           {/* Center column - main interaction */}
-          <main className="moodle-center">
+          <main className="moodle-center teacher-dashboard-center">
+            {/* Insights Section - At the very top */}
+            <div className="insights-section">
+              <div className="insights-title">Insights</div>
+              <div className="insights-grid">
+                <div className="insight-item high">
+                  <span className="insight-icon">⚠️</span>
+                  <span>Chapter 2 has 3x more questions than others</span>
+                </div>
+                <div className="insight-item medium">
+                  <span className="insight-icon">📈</span>
+                  <span>Activity increased this week</span>
+                </div>
+                <div className="insight-item low">
+                  <span className="insight-icon">✅</span>
+                  <span>Project questions decreasing</span>
+                </div>
+              </div>
+            </div>
+            
             <div className="chapter-header">
               <h2 className="chapter-title">
                 {chapters.find((c) => c.id === state.selectedChapter)?.label}
               </h2>
             </div>
+            
             {state.error && (
               <div className={`error-banner error-${state.error.severity}`}>
                 <div className="error-content">
@@ -639,25 +659,7 @@ const TeacherDashboard: React.FC = () => {
               <div className="info-title">Respostas pendentes</div>
               <div className="info-note">5 perguntas sem resposta</div>
             </div>
-            
-            {/* Additional teacher insights */}
-            <div className="info-card">
-              <div className="info-title">Insights</div>
-              <ul className="info-list">
-                <li className="insight-item high">
-                  <span className="insight-icon">⚠️</span>
-                  <span>Chapter 2 has 3x more questions than others</span>
-                </li>
-                <li className="insight-item medium">
-                  <span className="insight-icon">📈</span>
-                  <span>Activity increased this week</span>
-                </li>
-                <li className="insight-item low">
-                  <span className="insight-icon">✅</span>
-                  <span>Project questions decreasing</span>
-                </li>
-              </ul>
-            </div>
+
           </aside>
         </main>
 

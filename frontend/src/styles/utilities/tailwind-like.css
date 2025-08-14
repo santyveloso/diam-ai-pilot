@@ -1,0 +1,83 @@
+/* Tailwind-like Utility Classes */
+
+/* Padding */
+.p-3 {
+  padding: var(--spacing-md);
+}
+
+/* Text Colors */
+.text-white {
+  color: var(--color-white);
+}
+
+.text-xs {
+  font-size: var(--font-size-xs);
+}
+
+.text-gray-600 {
+  color: var(--color-gray-500);
+}
+
+/* Border Radius */
+.rounded-lg {
+  border-radius: var(--border-radius-lg);
+}
+
+/* Cursor */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Transitions */
+.transition-all {
+  transition: all var(--transition-fast);
+}
+
+/* Font Weight */
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* Font Size */
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+
+/* Margin */
+.mt-1 {
+  margin-top: var(--spacing-xs);
+}
+
+/* Ring (focus/selection indicator) */
+.ring-2 {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.ring-blue-500 {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+/* Scale */
+.scale-105 {
+  transform: scale(1.05);
+}
+
+/* Hover effects for heatmap cells */
+.heatmap-high:hover,
+.heatmap-medium-high:hover,
+.heatmap-medium:hover,
+.heatmap-low:hover,
+.heatmap-none:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Selected state for heatmap cells */
+.heatmap-high.ring-2,
+.heatmap-medium-high.ring-2,
+.heatmap-medium.ring-2,
+.heatmap-low.ring-2,
+.heatmap-none.ring-2 {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-primary);
+}

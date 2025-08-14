@@ -4,7 +4,7 @@ Protótipo de IA educacional para o curso DIAM no ISCTE.
 
 ## Descrição
 
-O DIAM AI Pilot é uma aplicação que permite aos estudantes fazer upload de materiais de curso em PDF e fazer perguntas em linguagem natural, recebendo respostas geradas por IA baseadas no conteúdo carregado. A aplicação utiliza o modelo Google Gemini 2.5 Flash para gerar respostas contextualizadas e suporta tanto português quanto inglês.
+O DIAM AI Pilot é uma aplicação que permite aos professores fazer upload de materiais de curso em PDF para que os estudantes possam aceder e fazer perguntas em linguagem natural, recebendo respostas geradas por IA baseadas no conteúdo carregado. A aplicação utiliza o modelo Google Gemini 2.5 Flash para gerar respostas contextualizadas e suporta tanto português quanto inglês.
 
 ## Características Principais
 
@@ -147,8 +147,14 @@ npm run test:coverage
 
 ## Uso da Aplicação
 
+**Para Professores:**
 1. **Acesse a aplicação** em `http://localhost:3000`
-2. **Faça upload de um PDF** clicando na área de upload ou arrastando o arquivo
+2. **Faça upload de PDFs** dos materiais do curso clicando na área de upload ou arrastando os arquivos
+3. **Organize os materiais** por capítulos ou tópicos
+
+**Para Estudantes:**
+1. **Acesse a aplicação** em `http://localhost:3000`
+2. **Selecione um documento** disponibilizado pelo professor
 3. **Digite sua pergunta** sobre o conteúdo do documento
 4. **Receba a resposta** gerada pela IA baseada no documento
 
@@ -176,9 +182,10 @@ npm run test:coverage
 **Frontend:**
 
 - `App.tsx` - Componente principal com gerenciamento de estado
-- `FileUpload.tsx` - Interface de upload de arquivos
-- `QuestionInput.tsx` - Formulário de perguntas
+- `FileUpload.tsx` - Interface de upload de arquivos (para professores)
+- `QuestionInput.tsx` - Formulário de perguntas (para estudantes)
 - `ResponseDisplay.tsx` - Exibição de respostas da IA
+- **CSS Modular** - Arquitetura CSS organizada por componentes
 
 **Backend:**
 

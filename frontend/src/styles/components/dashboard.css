@@ -1,0 +1,289 @@
+/* Dashboard Component Styles */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-3xl);
+}
+
+.info-card.span-cols {
+  grid-column: 1 / -1;
+}
+
+/* Heatmap Styles */
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.heatmap-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-sm);
+}
+
+.heatmap-legend-item {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.heatmap-legend-color {
+  width: 12px;
+  height: 12px;
+  margin-right: var(--spacing-sm);
+  border-radius: 2px;
+}
+
+/* Heatmap Color Classes */
+.heatmap-high {
+  background-color: #ef4444 !important; /* red-500 */
+}
+
+.heatmap-medium-high {
+  background-color: #f97316 !important; /* orange-500 */
+}
+
+.heatmap-medium {
+  background-color: #eab308 !important; /* yellow-500 */
+}
+
+.heatmap-low {
+  background-color: #22c55e !important; /* green-500 */
+}
+
+.heatmap-none {
+  background-color: var(--color-gray-200) !important;
+  color: var(--color-gray-600) !important;
+}
+
+/* Activity Chart Styles */
+.activity-chart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: var(--color-gray-50);
+  border-radius: var(--border-radius-md);
+  margin-top: var(--spacing-lg);
+}
+
+.chart-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-height: 120px;
+  justify-content: flex-end;
+}
+
+.chart-bar {
+  width: 70%;
+  border-radius: 4px 4px 0 0;
+  transition: all var(--transition-fast);
+  min-height: 4px;
+  background: linear-gradient(
+    to top,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
+}
+
+.chart-bar:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+.chart-label {
+  margin-top: var(--spacing-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-600);
+  text-align: center;
+}
+
+.chart-value {
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-800);
+  text-align: center;
+}
+
+/* Progress Bar Styles */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: var(--color-gray-200);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  margin-top: var(--spacing-sm);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
+  border-radius: var(--border-radius-sm);
+  transition: width var(--transition-normal);
+}
+
+.difficulty-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+.difficulty-track {
+  flex: 1;
+  height: 8px;
+  background-color: var(--color-gray-200);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+}
+
+.difficulty-fill {
+  height: 100%;
+  border-radius: var(--border-radius-sm);
+  transition: width var(--transition-normal);
+}
+
+.difficulty-label {
+  font-weight: var(--font-weight-semibold);
+  min-width: 40px;
+  text-align: right;
+}
+
+.topic-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.topic-tag {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Duplicate .chart-value rule removed - consolidated above */
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.9rem;
+}
+
+.insight-item:last-child {
+  margin-bottom: 0;
+}
+
+.insight-icon {
+  flex-shrink: 0;
+}
+
+.insight-item.high .insight-icon {
+  color: var(--color-error);
+}
+
+.insight-item.medium .insight-icon {
+  color: var(--color-warning);
+}
+
+.insight-item.low .insight-icon {
+  color: var(--color-success);
+}
+
+/* Compact Insights Section */
+/* Teacher Dashboard Specific Layout */
+.teacher-dashboard-center {
+  padding-top: var(--spacing-lg); /* Align with sidebar content */
+}
+
+.insights-section {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.insights-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-800);
+  margin-bottom: var(--spacing-md);
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* Compact insight items for horizontal layout */
+.insights-grid .insight-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-gray-50);
+  border-radius: var(--border-radius-md);
+  margin-bottom: 0;
+  font-size: var(--font-size-sm);
+  border-left: 3px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.insights-grid .insight-item:hover {
+  background: var(--color-gray-100);
+  transform: translateY(-1px);
+}
+
+.insights-grid .insight-item.high {
+  border-left-color: var(--color-error);
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.insights-grid .insight-item.medium {
+  border-left-color: var(--color-warning);
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.insights-grid .insight-item.low {
+  border-left-color: var(--color-success);
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.insights-grid .insight-item .insight-icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-lg);
+}
+
+/* Responsive adjustments for insights */
+@media (max-width: 768px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .insights-grid .insight-item {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+}

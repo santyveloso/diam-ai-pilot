@@ -1,5 +1,8 @@
 /* Global Styles for DIAM AI Pilot */
 
+/* Import CSS Variables */
+@import './styles/base/variables.css';
+
 /* CSS Reset and Base Styles */
 *,
 *::before,
