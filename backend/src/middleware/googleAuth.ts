@@ -16,6 +16,20 @@ const client = new OAuth2Client(env.googleClientId);
 
 export const verifyGoogleToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
+    // In development mode, allow bypass with a simple test token
+    if (env.nodeEnv === 'development') {
+      const authHeader = req.headers.authorization;
+      if (authHeader === 'Bearer development-token' || authHeader === 'Bearer test-token') {
+        req.user = {
+          id: 'dev-user-123',
+          email: 'developer@iscte.pt',
+          name: 'Development User',
+          picture: undefined
+        };
+        return next();
+      }
+    }
+
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

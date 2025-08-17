@@ -1,17 +1,21 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import FileUpload from "./FileUpload";
 import QuestionInput from "./QuestionInput";
 import ResponseDisplay from "./ResponseDisplay";
-import { askQuestion } from "../services/api";
+import FileLibraryPanel from "./FileLibraryPanel";
+import FileUploadModal from "./FileUploadModal";
+import { askQuestion, askQuestionWithFileId } from "../services/api";
+import { getFileLibrary } from "../services/api";
 import { ErrorService } from "../services/errorService";
-import { EnhancedError } from "../types";
+import { EnhancedError, ChapterFiles } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/index.css";
 
 // Application state interface
 interface AppState {
   selectedFile: File | null;
+  selectedFileId: string | null;
   question: string;
   response: string | null;
   isLoading: boolean;
@@ -23,6 +27,17 @@ interface AppState {
   showQuickAsk: boolean;
   quickAskPreset: "hints" | "steps" | "full";
   quickAskText: string;
+  // File library state
+  fileLibrary: {
+    chapters: ChapterFiles[];
+    isLoading: boolean;
+    error: string | null;
+  };
+  // Upload modal state
+  uploadModal: {
+    isOpen: boolean;
+    isUploading: boolean;
+  };
 }
 
 const App: React.FC = () => {
@@ -37,6 +52,7 @@ const App: React.FC = () => {
   // Global application state
   const [state, setState] = useState<AppState>({
     selectedFile: null,
+    selectedFileId: null,
     question: "",
     response: null,
     isLoading: false,
@@ -48,21 +64,76 @@ const App: React.FC = () => {
     showQuickAsk: false,
     quickAskPreset: "hints",
     quickAskText: "",
+    // File library state
+    fileLibrary: {
+      chapters: [],
+      isLoading: false,
+      error: null,
+    },
+    // Upload modal state
+    uploadModal: {
+      isOpen: false,
+      isUploading: false,
+    },
   });
 
-  const chapters = [
-    { id: "general", label: "General" },
-    { id: "ch1", label: "Chapter 1 - HTML" },
-    { id: "ch2", label: "Chapter 2 - CSS & JS" },
-    { id: "project", label: "Project" },
-    { id: "assessments", label: "Assessments" },
-  ];
+  // Load file library on component mount
+  useEffect(() => {
+    const loadFileLibrary = async () => {
+      setState(prev => ({
+        ...prev,
+        fileLibrary: {
+          ...prev.fileLibrary,
+          isLoading: true,
+          error: null
+        }
+      }));
 
-  // File selection handler
+      try {
+        const response = await getFileLibrary();
+        
+        if (response.success) {
+          setState(prev => ({
+            ...prev,
+            fileLibrary: {
+              chapters: response.chapters,
+              isLoading: false,
+              error: null
+            }
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            fileLibrary: {
+              ...prev.fileLibrary,
+              isLoading: false,
+              error: response.error || 'Failed to load file library'
+            }
+          }));
+        }
+      } catch (error: any) {
+        console.error('Error loading file library:', error);
+        const errorMessage = ErrorService.processError(error, 'pt');
+        setState(prev => ({
+          ...prev,
+          fileLibrary: {
+            ...prev.fileLibrary,
+            isLoading: false,
+            error: ErrorService.getUserMessage(errorMessage, 'pt')
+          }
+        }));
+      }
+    };
+
+    loadFileLibrary();
+  }, []);
+
+  // File selection handler (legacy)
   const handleFileSelect = useCallback((file: File | null) => {
     setState((prev) => ({
       ...prev,
       selectedFile: file,
+      selectedFileId: null, // Clear file ID when using direct file
       error: null,
       response: null, // Clear previous response when new file is selected
       question: file ? prev.question : "", // Clear question when file is removed
@@ -70,10 +141,22 @@ const App: React.FC = () => {
     }));
   }, []);
 
+  // File library selection handler
+  const handleFileLibrarySelect = useCallback((fileId: string | null) => {
+    setState((prev) => ({
+      ...prev,
+      selectedFileId: fileId,
+      selectedFile: null, // Clear direct file when using library
+      error: null,
+      response: null, // Clear previous response when new file is selected
+    }));
+  }, []);
+
   // Question submission handler
   const handleQuestionSubmit = useCallback(
     async (question: string) => {
-      if (!state.selectedFile) {
+      // Check if we have either a file or fileId
+      if (!state.selectedFile && !state.selectedFileId) {
         const error = ErrorService.processError(
           { code: "MISSING_FILE", message: "No file selected" },
           state.language
@@ -93,9 +176,16 @@ const App: React.FC = () => {
       }));
 
       try {
-        const response = await askQuestion(question, state.selectedFile);
+        let response: any = null;
+        
+        // Use file library if fileId is available, otherwise use direct file
+        if (state.selectedFileId) {
+          response = await askQuestionWithFileId(question, state.selectedFileId);
+        } else if (state.selectedFile) {
+          response = await askQuestion(question, state.selectedFile);
+        }
 
-        if (response.success) {
+        if (response && response.success) {
           setState((prev) => ({
             ...prev,
             isLoading: false,
@@ -104,7 +194,7 @@ const App: React.FC = () => {
           }));
         } else {
           const error = ErrorService.processError(
-            { message: response.error || "API response error" },
+            { message: response?.error || "API response error" },
             state.language
           );
           setState((prev) => ({
@@ -120,6 +210,7 @@ const App: React.FC = () => {
         const enhancedError = ErrorService.processError(error, state.language);
         ErrorService.logError(enhancedError, {
           selectedFile: state.selectedFile?.name,
+          selectedFileId: state.selectedFileId,
           question: question.substring(0, 100), // Log first 100 chars only
         });
 
@@ -131,7 +222,7 @@ const App: React.FC = () => {
         }));
       }
     },
-    [state.selectedFile, state.language]
+    [state.selectedFile, state.selectedFileId, state.language]
   );
 
   // Clear error handler
@@ -171,6 +262,59 @@ const App: React.FC = () => {
     },
     [state.language]
   );
+
+  // Handle upload modal open
+  const handleOpenUploadModal = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      uploadModal: {
+        ...prev.uploadModal,
+        isOpen: true
+      }
+    }));
+  }, []);
+
+  // Handle upload modal close
+  const handleCloseUploadModal = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      uploadModal: {
+        ...prev.uploadModal,
+        isOpen: false
+      }
+    }));
+  }, []);
+
+  // Handle upload success
+  const handleUploadSuccess = useCallback((file: any) => {
+    // Refresh file library after successful upload
+    const refreshFileLibrary = async () => {
+      try {
+        const response = await getFileLibrary();
+        
+        if (response.success) {
+          setState(prev => ({
+            ...prev,
+            fileLibrary: {
+              chapters: response.chapters,
+              isLoading: false,
+              error: null
+            }
+          }));
+        }
+      } catch (error: any) {
+        console.error('Error refreshing file library:', error);
+      }
+    };
+
+    refreshFileLibrary();
+    handleCloseUploadModal();
+  }, [handleCloseUploadModal]);
+
+  // Get existing chapter names for upload modal
+  const getExistingChapters = useCallback(() => {
+    return state.fileLibrary.chapters.map(chapter => chapter.chapter);
+  }, [state.fileLibrary.chapters]);
 
   return (
     <div className="app">
@@ -219,13 +363,7 @@ const App: React.FC = () => {
               <button
                 type="button"
                 className="header-upload-cta"
-                onClick={() =>
-                  (
-                    document.getElementById(
-                      "header-file-input"
-                    ) as HTMLInputElement
-                  )?.click()
-                }
+                onClick={handleOpenUploadModal}
               >
                 Carregar ficheiro
               </button>
@@ -300,55 +438,30 @@ const App: React.FC = () => {
         </header>
 
         <main className="app-main moodle-body">
-          {/* Left rail - simplified navigation for familiarity */}
-          <aside className="moodle-left" aria-label="Navegação do curso">
-            <div className="nav-section">
-              <div className="nav-title">Capítulos</div>
-              <ul className="nav-list">
-                {chapters.map((c) => (
-                  <li
-                    key={c.id}
-                    className={`nav-item ${
-                      state.selectedChapter === c.id ? "active" : ""
-                    }`}
-                    onClick={() =>
-                      setState((prev) => ({ ...prev, selectedChapter: c.id }))
-                    }
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ")
-                        setState((prev) => ({
-                          ...prev,
-                          selectedChapter: c.id,
-                        }));
-                    }}
-                    aria-current={
-                      state.selectedChapter === c.id ? "page" : undefined
-                    }
-                  >
-                    {c.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="nav-section">
-              <div className="nav-title">Minhas perguntas</div>
-              <ul className="nav-list compact">
-                <li className="nav-chip">Dúvida: div vs section</li>
-                <li className="nav-chip">Scope do projeto</li>
-                <li className="nav-chip">Nota final</li>
-              </ul>
-            </div>
+          {/* Left rail - File Library Panel */}
+          <aside className="moodle-left" aria-label="Biblioteca de arquivos">
+            <FileLibraryPanel
+              selectedFileId={state.selectedFileId}
+              onFileSelect={handleFileLibrarySelect}
+              userRole={user?.email?.includes('@iscte') ? 'teacher' : 'student'}
+              isLoading={state.fileLibrary.isLoading}
+              error={state.fileLibrary.error}
+            />
           </aside>
 
           {/* Center column - main interaction */}
           <main className="moodle-center">
             <div className="chapter-header">
               <h2 className="chapter-title">
-                {chapters.find((c) => c.id === state.selectedChapter)?.label}
+                {state.selectedFileId ? 'Arquivo Selecionado' : 
+                 state.selectedFile ? 'Arquivo Carregado' : 
+                 'Selecione um arquivo'}
               </h2>
+              {(state.selectedFile || state.selectedFileId) && (
+                <p className="selected-file-indicator">
+                  {state.selectedFile ? state.selectedFile.name : 'Arquivo da biblioteca'}
+                </p>
+              )}
             </div>
             {state.error && (
               <div className={`error-banner error-${state.error.severity}`}>
@@ -394,8 +507,23 @@ const App: React.FC = () => {
             <section className="question-section">
               <QuestionInput
                 onSubmit={handleQuestionSubmit}
-                disabled={!state.selectedFile}
+                disabled={!state.selectedFile && !state.selectedFileId}
                 isLoading={state.isLoading}
+                selectedFileName={
+                  state.selectedFileId 
+                    ? state.fileLibrary.chapters
+                        .flatMap(chapter => chapter.files)
+                        .find(file => file.id === state.selectedFileId)?.originalName
+                    : state.selectedFile?.name
+                }
+                selectedFileChapter={
+                  state.selectedFileId 
+                    ? state.fileLibrary.chapters
+                        .find(chapter => 
+                          chapter.files.some(file => file.id === state.selectedFileId)
+                        )?.chapter
+                    : undefined
+                }
               />
             </section>
 
@@ -434,6 +562,15 @@ const App: React.FC = () => {
           </aside>
         </main>
 
+        {/* File Upload Modal */}
+        <FileUploadModal
+          isOpen={state.uploadModal.isOpen}
+          onClose={handleCloseUploadModal}
+          onUploadSuccess={handleUploadSuccess}
+          existingChapters={getExistingChapters()}
+          isUploading={state.uploadModal.isUploading}
+        />
+
         {state.showQuickAsk && (
           <div
             className="modal-overlay"
@@ -455,8 +592,9 @@ const App: React.FC = () => {
                 </button>
               </div>
               <div className="modal-subtitle">
-                Capítulo:{" "}
-                {chapters.find((c) => c.id === state.selectedChapter)?.label}
+                {state.selectedFileId ? 'Arquivo da biblioteca selecionado' : 
+                 state.selectedFile ? `Arquivo: ${state.selectedFile.name}` : 
+                 'Nenhum arquivo selecionado'}
               </div>
               <div className="modal-body">
                 <textarea

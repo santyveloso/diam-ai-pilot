@@ -14,8 +14,16 @@ import { Request, Response, NextFunction } from 'express';
 export interface AskRequest {
   /** The question to ask about the uploaded PDF */
   question: string;
-  // Note: File is handled separately via multipart/form-data
+  /** Optional file ID for library file reference (alternative to file upload) */
+  fileId?: string;
+  // Note: File is handled separately via multipart/form-data when fileId is not provided
 }
+
+// Type guard to ensure at least one file source is provided
+export type ValidAskRequest = AskRequest & (
+  | { fileId: string }
+  | { fileId?: never } // File upload mode (file provided via multipart)
+);
 
 /** Successful response from the /api/ask endpoint */
 export interface AskResponse {
@@ -23,6 +31,8 @@ export interface AskResponse {
   response: string;
   /** Always true for successful responses */
   success: boolean;
+  /** Name of the file used for the response (for confirmation) */
+  fileUsed?: string;
   /** Error message (only present if success is false) */
   error?: string;
 }
@@ -120,7 +130,14 @@ export type ErrorCode =
   | 'API_CONFIGURATION_ERROR'
   | 'INTERNAL_SERVER_ERROR'
   | 'SERVICE_UNAVAILABLE'
-  | 'INVALID_CONTENT';
+  | 'INVALID_CONTENT'
+  | 'MISSING_CHAPTER'
+  | 'MISSING_CHAPTER_NAME'
+  | 'FILE_NOT_FOUND'
+  | 'CHAPTER_NOT_FOUND'
+  | 'CHAPTER_NAME_EXISTS'
+  | 'MISSING_FILE_OR_ID'
+  | 'INVALID_FILE_ID';
 
 /**
  * File Processing Types
@@ -314,6 +331,94 @@ export interface PerformanceMetrics {
 }
 
 /**
+ * File Library Types
+ * Types for the chapter-based file library system
+ */
+
+/** Library file interface representing a stored file with metadata */
+export interface LibraryFile {
+  /** Unique file identifier */
+  id: string;
+  /** Original filename */
+  originalName: string;
+  /** Chapter assignment */
+  chapter: string;
+  /** File size in bytes */
+  size: number;
+  /** Upload timestamp */
+  uploadedAt: Date;
+  /** Extracted PDF text content */
+  textContent: string;
+  /** File MIME type */
+  mimeType: string;
+}
+
+/** Chapter interface for organizing files */
+export interface Chapter {
+  /** Chapter display name */
+  name: string;
+  /** Files in this chapter */
+  files: LibraryFile[];
+  /** Number of files */
+  fileCount: number;
+  /** UI state for expansion (optional) */
+  isExpanded?: boolean;
+}
+
+/** Chapter files interface for API responses */
+export interface ChapterFiles {
+  /** Chapter name */
+  chapter: string;
+  /** Files in the chapter */
+  files: LibraryFile[];
+}
+
+/** Request body for file upload with chapter assignment */
+export interface FileUploadRequest {
+  /** Chapter to assign the file to */
+  chapter: string;
+  // Note: File is handled separately via multipart/form-data
+}
+
+/** Response for successful file upload */
+export interface FileUploadResponse {
+  /** Always true for successful uploads */
+  success: boolean;
+  /** The uploaded file information */
+  file: LibraryFile;
+}
+
+/** Response for file library retrieval */
+export interface FileLibraryResponse {
+  /** Always true for successful retrieval */
+  success: boolean;
+  /** Files organized by chapter */
+  chapters: ChapterFiles[];
+}
+
+/** Response for individual file retrieval */
+export interface FileResponse {
+  /** Always true for successful retrieval */
+  success: boolean;
+  /** The requested file */
+  file: LibraryFile;
+}
+
+/** Request body for chapter rename */
+export interface ChapterRenameRequest {
+  /** New chapter name */
+  newName: string;
+}
+
+/** Response for file deletion or chapter rename */
+export interface FileOperationResponse {
+  /** Whether operation was successful */
+  success: boolean;
+  /** Operation result message */
+  message: string;
+}
+
+/**
  * Utility Types
  * Helper types for common patterns
  */
@@ -337,6 +442,6 @@ export type AsyncFunction<T = any, R = any> = (arg: T) => Promise<R>;
 /** Function type for middleware */
 export type MiddlewareFunction = (
   req: ExtendedRequest,
-  res: Express.Response,
+  res: Response,
   next: NextFunction
 ) => void | Promise<void>;

@@ -39,6 +39,22 @@ jest.mock('../services/pdfProcessor', () => {
   };
 });
 
+jest.mock('../services/fileLibraryService', () => {
+  return {
+    FileLibraryService: {
+      getFileById: jest.fn().mockResolvedValue({
+        id: 'test-file-id',
+        originalName: 'library-test.pdf',
+        chapter: 'Test Chapter',
+        size: 1000,
+        uploadedAt: new Date(),
+        textContent: 'This is test content from a library PDF document.',
+        mimeType: 'application/pdf'
+      })
+    }
+  };
+});
+
 // Import app after mocking
 import app from '../server';
 
@@ -72,14 +88,14 @@ describe('API Routes', () => {
       expect(response.body.error.code).toBe('MISSING_QUESTION');
     });
 
-    it('should return 400 when no file is provided', async () => {
+    it('should return 400 when no file or fileId is provided', async () => {
       const response = await request(app)
         .post('/api/ask')
         .field('question', 'What is this document about?');
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('MISSING_FILE');
+      expect(response.body.error.code).toBe('MISSING_FILE_OR_ID');
     });
 
     it('should return 400 when non-PDF file is uploaded', async () => {
@@ -100,7 +116,7 @@ describe('API Routes', () => {
       fs.unlinkSync(textFilePath);
     });
 
-    it('should process valid request successfully', async () => {
+    it('should process valid file upload request successfully', async () => {
       const response = await request(app)
         .post('/api/ask')
         .attach('file', testPdfPath)
@@ -109,6 +125,21 @@ describe('API Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.response).toBe('This is a test response from the AI.');
+      expect(response.body.fileUsed).toBe('test.pdf');
+    });
+
+    it('should process valid fileId request successfully', async () => {
+      const response = await request(app)
+        .post('/api/ask')
+        .send({
+          question: 'What is this document about?',
+          fileId: 'test-file-id'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.response).toBe('This is a test response from the AI.');
+      expect(response.body.fileUsed).toBe('library-test.pdf');
     });
   });
 

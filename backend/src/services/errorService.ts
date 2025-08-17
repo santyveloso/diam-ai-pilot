@@ -136,6 +136,71 @@ export class ErrorService {
       },
       retryable: false,
       severity: 'high' as ErrorSeverity
+    },
+
+    // File library errors
+    MISSING_CHAPTER: {
+      statusCode: 400,
+      userMessage: {
+        en: 'Chapter name is required.',
+        pt: 'Nome do capítulo é obrigatório.'
+      },
+      retryable: false,
+      severity: 'low' as ErrorSeverity
+    },
+    MISSING_CHAPTER_NAME: {
+      statusCode: 400,
+      userMessage: {
+        en: 'New chapter name is required.',
+        pt: 'Novo nome do capítulo é obrigatório.'
+      },
+      retryable: false,
+      severity: 'low' as ErrorSeverity
+    },
+    FILE_NOT_FOUND: {
+      statusCode: 404,
+      userMessage: {
+        en: 'File not found.',
+        pt: 'Arquivo não encontrado.'
+      },
+      retryable: false,
+      severity: 'low' as ErrorSeverity
+    },
+    CHAPTER_NOT_FOUND: {
+      statusCode: 404,
+      userMessage: {
+        en: 'Chapter not found.',
+        pt: 'Capítulo não encontrado.'
+      },
+      retryable: false,
+      severity: 'low' as ErrorSeverity
+    },
+    CHAPTER_NAME_EXISTS: {
+      statusCode: 409,
+      userMessage: {
+        en: 'A chapter with this name already exists.',
+        pt: 'Um capítulo com este nome já existe.'
+      },
+      retryable: false,
+      severity: 'low' as ErrorSeverity
+    },
+    MISSING_FILE_OR_ID: {
+      statusCode: 400,
+      userMessage: {
+        en: 'Either file upload or file ID is required.',
+        pt: 'É necessário enviar um arquivo ou fornecer um ID de arquivo.'
+      },
+      retryable: false,
+      severity: 'low' as ErrorSeverity
+    },
+    INVALID_FILE_ID: {
+      statusCode: 400,
+      userMessage: {
+        en: 'File ID must be a valid non-empty string.',
+        pt: 'ID do arquivo deve ser uma string válida e não vazia.'
+      },
+      retryable: false,
+      severity: 'low' as ErrorSeverity
     }
   };
 

@@ -15,6 +15,7 @@
 @import './components/error-banner.css';
 @import './components/navigation.css';
 @import './components/dashboard.css';
+@import './components/file-library-panel.css';
 
 /* Utility Styles */
 @import './utilities/buttons.css';
@@ -55,6 +56,14 @@
 
 .selected-file-info button:hover {
   background-color: #c82333;
+}
+
+/* Selected file indicator in chapter header */
+.selected-file-indicator {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin: var(--spacing-xs) 0 0 0;
+  font-weight: var(--font-weight-normal);
 }
 
 /* Responsive adjustments for selected file info */

@@ -51,7 +51,7 @@ export const env: EnvironmentConfig = {
   port: getEnvNumber('PORT', 3001),
   nodeEnv: getEnvVar('NODE_ENV', 'development'),
   frontendUrl: getEnvVar('FRONTEND_URL', 'http://localhost:3000'),
-  geminiApiKey: getEnvVar('GEMINI_API_KEY', process.env.NODE_ENV === 'test' ? 'test-key' : ''),
+  geminiApiKey: getEnvVar('GEMINI_API_KEY', process.env.NODE_ENV === 'test' ? 'test-key' : 'development-key'),
   maxFileSize: getEnvNumber('MAX_FILE_SIZE', 10485760), // 10MB
   uploadDir: getEnvVar('UPLOAD_DIR', 'uploads/'),
   logLevel: getEnvVar('LOG_LEVEL', 'info'),
@@ -60,7 +60,7 @@ export const env: EnvironmentConfig = {
   requestTimeout: getEnvNumber('REQUEST_TIMEOUT', 30000),
   rateLimitWindowMs: getEnvNumber('RATE_LIMIT_WINDOW_MS', 900000), // 15 minutes
   rateLimitMaxRequests: getEnvNumber('RATE_LIMIT_MAX_REQUESTS', 100),
-  jwtSecret: getEnvVar('JWT_SECRET', process.env.NODE_ENV === 'test' ? 'test-jwt-secret' : ''),
+  jwtSecret: getEnvVar('JWT_SECRET', process.env.NODE_ENV === 'test' ? 'test-jwt-secret' : 'development-jwt-secret'),
   googleClientId: getEnvVar('GOOGLE_CLIENT_ID', ''),
   googleClientSecret: getEnvVar('GOOGLE_CLIENT_SECRET', ''),
   googleRedirectUri: getEnvVar('GOOGLE_REDIRECT_URI', 'http://localhost:3000'),
@@ -70,20 +70,20 @@ export const env: EnvironmentConfig = {
 export const validateEnvironment = (): void => {
   const errors: string[] = [];
 
-  if (!env.geminiApiKey && env.nodeEnv !== 'test') {
-    errors.push('GEMINI_API_KEY is required for non-test environments');
+  if (!env.geminiApiKey && env.nodeEnv === 'production') {
+    errors.push('GEMINI_API_KEY is required for production environment');
   }
 
-  if (!env.jwtSecret && env.nodeEnv !== 'test') {
-    errors.push('JWT_SECRET is required for non-test environments');
+  if (!env.jwtSecret && env.nodeEnv === 'production') {
+    errors.push('JWT_SECRET is required for production environment');
   }
 
-  if (!env.googleClientId && env.nodeEnv !== 'test') {
-    errors.push('GOOGLE_CLIENT_ID is required for non-test environments');
+  if (!env.googleClientId && env.nodeEnv === 'production') {
+    errors.push('GOOGLE_CLIENT_ID is required for production environment');
   }
 
-  if (!env.googleClientSecret && env.nodeEnv !== 'test') {
-    errors.push('GOOGLE_CLIENT_SECRET is required for non-test environments');
+  if (!env.googleClientSecret && env.nodeEnv === 'production') {
+    errors.push('GOOGLE_CLIENT_SECRET is required for production environment');
   }
 
   if (env.maxFileSize <= 0) {

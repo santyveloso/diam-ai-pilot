@@ -49,14 +49,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = (googleToken: string, userInfo: User): boolean => {
     try {
       setIsLoading(true);
+      console.log('AuthContext: Attempting login for user:', userInfo.email);
       const success = authService.loginWithGoogle(googleToken, userInfo);
       if (success) {
+        console.log('AuthContext: Login successful, setting user state');
         setUser(userInfo);
         return true;
       }
+      console.log('AuthContext: Login failed');
       return false;
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('AuthContext: Login failed with error:', error);
       return false;
     } finally {
       setIsLoading(false);

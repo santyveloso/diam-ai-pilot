@@ -1,5 +1,7 @@
 /* QuestionInput Component Styles */
 
+@import url('./selected-file-info.css');
+
 .question-input {
   width: 100%;
 }

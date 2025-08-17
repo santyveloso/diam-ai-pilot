@@ -1,0 +1,384 @@
+/* File Library Panel Styles */
+
+.file-library-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.library-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-800);
+  margin: 0;
+}
+
+.library-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Loading State */
+.library-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3xl);
+  text-align: center;
+}
+
+.library-loading .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-gray-200);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--spacing-md);
+}
+
+.library-loading p {
+  color: var(--color-gray-500);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+/* Error State */
+.library-error {
+  padding: var(--spacing-lg);
+  text-align: center;
+}
+
+.library-error .error-message {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.retry-button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.retry-button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Empty State */
+.library-empty {
+  padding: var(--spacing-3xl);
+  text-align: center;
+  color: var(--color-gray-500);
+}
+
+.library-empty p {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-sm);
+}
+
+.empty-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-400);
+}
+
+/* Chapters List */
+.chapters-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Chapter Section */
+.chapter-section {
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  transition: var(--transition-fast);
+}
+
+.chapter-section:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+/* Chapter Header */
+.chapter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--color-gray-50);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.chapter-header:hover {
+  background-color: var(--color-gray-100);
+}
+
+.chapter-header.expanded {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.chapter-header.expanded:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.chapter-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+}
+
+.chapter-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  color: inherit;
+  user-select: none;
+  cursor: pointer;
+}
+
+.chapter-name-input {
+  background: var(--color-white);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
+  outline: none;
+  width: 100%;
+}
+
+.chapter-count {
+  font-size: var(--font-size-xs);
+  color: inherit;
+  opacity: 0.8;
+}
+
+.chapter-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.edit-chapter-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  opacity: 0.7;
+  transition: var(--transition-fast);
+}
+
+.edit-chapter-button:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.expand-icon {
+  font-size: var(--font-size-sm);
+  transition: transform var(--transition-fast);
+  opacity: 0.8;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+/* Files List */
+.files-list {
+  background-color: var(--color-white);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+/* File Item */
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-gray-100);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.file-item:last-child {
+  border-bottom: none;
+}
+
+.file-item:hover {
+  background-color: var(--color-gray-50);
+}
+
+.file-item.selected {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid var(--color-primary);
+}
+
+.file-item.selected:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+.file-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-800);
+  margin-bottom: var(--spacing-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-meta {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}
+
+.file-size,
+.file-date {
+  white-space: nowrap;
+}
+
+.delete-file-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  opacity: 0;
+  transition: var(--transition-fast);
+  color: var(--color-error);
+}
+
+.file-item:hover .delete-file-button {
+  opacity: 0.7;
+}
+
+.delete-file-button:hover {
+  opacity: 1;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.delete-file-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Operation Overlay */
+.operation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-index-dropdown);
+}
+
+.operation-overlay .loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-gray-200);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .file-library-panel {
+    font-size: var(--font-size-sm);
+  }
+
+  .library-title {
+    font-size: var(--font-size-base);
+  }
+
+  .chapter-header {
+    padding: var(--spacing-sm);
+  }
+
+  .file-item {
+    padding: var(--spacing-sm);
+  }
+
+  .file-meta {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .delete-file-button {
+    opacity: 0.7; /* Always visible on mobile */
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .expand-icon,
+  .file-item,
+  .chapter-header,
+  .loading-spinner {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.chapter-header:focus,
+.file-item:focus,
+.retry-button:focus,
+.edit-chapter-button:focus,
+.delete-file-button:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .chapter-section {
+    border-width: 2px;
+  }
+  
+  .file-item.selected {
+    border-left-width: 4px;
+  }
+}

@@ -1,10 +1,17 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { QuestionInputProps } from '../types';
 
-const QuestionInput: React.FC<QuestionInputProps> = ({
+interface QuestionInputPropsWithFile extends QuestionInputProps {
+  selectedFileName?: string;
+  selectedFileChapter?: string;
+}
+
+const QuestionInput: React.FC<QuestionInputPropsWithFile> = ({
   onSubmit,
   disabled,
   isLoading,
+  selectedFileName,
+  selectedFileChapter
 }) => {
   const [question, setQuestion] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -90,6 +97,15 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
 
   return (
     <div className="question-input">
+      {selectedFileName && (
+        <div className="selected-file-info">
+          <div className="file-name">{selectedFileName}</div>
+          {selectedFileChapter && (
+            <div className="file-chapter">Chapter: {selectedFileChapter}</div>
+          )}
+        </div>
+      )}
+      
       <form onSubmit={handleSubmit} className="question-form">
         <div className="question-field">
           <label htmlFor="question-textarea" className="question-label">
@@ -108,7 +124,7 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
               onKeyDown={handleKeyDown}
               placeholder={
                 disabled
-                  ? 'Please upload a PDF file first...'
+                  ? 'Please select a file from the library or upload a new one...'
                   : 'Type your question here... (Ctrl+Enter to submit)'
               }
               disabled={disabled || isLoading}
@@ -177,7 +193,7 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
           
           {disabled && (
             <div className="submit-hint disabled" id="submit-button-hint">
-              Upload a PDF file to ask questions
+              Select a file from the library or upload a new one to ask questions
             </div>
           )}
           

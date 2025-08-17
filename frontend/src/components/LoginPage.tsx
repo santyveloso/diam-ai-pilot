@@ -17,6 +17,8 @@ const LoginPage: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
+      
+      console.log('Google login initiated:', credentialResponse);
 
       // Safely decode the JWT to get user info
       if (!credentialResponse || !credentialResponse.credential) {
@@ -61,9 +63,14 @@ const LoginPage: React.FC = () => {
         picture: payload.picture || null,
       };
 
+      console.log('Attempting login with user info:', userInfo);
       const success = login(credentialResponse.credential, userInfo);
+      console.log('Login result:', success);
+      
       if (!success) {
         setError("Falha no login. Tente novamente.");
+      } else {
+        console.log('Login successful, user should be redirected');
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -148,7 +155,37 @@ const LoginPage: React.FC = () => {
                       <span>Fazendo login...</span>
                     </div>
                   ) : (
-                    <div id="google-signin-button"></div>
+                    <>
+                      <div id="google-signin-button"></div>
+                      {process.env.NODE_ENV === 'development' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const devUserInfo = {
+                              id: 'dev-user-123',
+                              email: 'developer@iscte.pt',
+                              name: 'Development User',
+                              picture: undefined,
+                            };
+                            const success = login('development-token', devUserInfo);
+                            if (!success) {
+                              setError('Development login failed');
+                            }
+                          }}
+                          style={{
+                            marginTop: '10px',
+                            padding: '10px 20px',
+                            backgroundColor: '#4285f4',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Development Login
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
 
