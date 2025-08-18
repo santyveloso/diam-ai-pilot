@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import FileUpload from "./FileUpload";
 import QuestionInput from "./QuestionInput";
 import ResponseDisplay from "./ResponseDisplay";
-import FileLibraryPanel from "./FileLibraryPanel";
 import FileUploadModal from "./FileUploadModal";
+import ChapterPicker from "./ChapterPicker";
 import { askQuestion, askQuestionWithFileId } from "../services/api";
 import { getFileLibrary } from "../services/api";
 import { ErrorService } from "../services/errorService";
@@ -111,7 +111,7 @@ const App: React.FC = () => {
             }
           }));
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error loading file library:', error);
         const errorMessage = ErrorService.processError(error, 'pt');
         setState(prev => ({
@@ -155,10 +155,27 @@ const App: React.FC = () => {
   // Question submission handler
   const handleQuestionSubmit = useCallback(
     async (question: string) => {
-      // Check if we have either a file or fileId
-      if (!state.selectedFile && !state.selectedFileId) {
+      // Check if we have a selected chapter
+      if (!state.selectedChapter || state.selectedChapter === 'general') {
         const error = ErrorService.processError(
-          { code: "MISSING_FILE", message: "No file selected" },
+          { code: "MISSING_CHAPTER", message: "No chapter selected" },
+          state.language
+        );
+        setState((prev) => ({
+          ...prev,
+          error,
+        }));
+        return;
+      }
+
+      // Get the first file from the selected chapter
+      const selectedChapterData = state.fileLibrary.chapters.find(
+        ch => ch.chapter === state.selectedChapter
+      );
+      
+      if (!selectedChapterData || selectedChapterData.files.length === 0) {
+        const error = ErrorService.processError(
+          { code: "NO_FILES_IN_CHAPTER", message: "No files available in selected chapter" },
           state.language
         );
         setState((prev) => ({
@@ -176,14 +193,9 @@ const App: React.FC = () => {
       }));
 
       try {
-        let response: any = null;
-        
-        // Use file library if fileId is available, otherwise use direct file
-        if (state.selectedFileId) {
-          response = await askQuestionWithFileId(question, state.selectedFileId);
-        } else if (state.selectedFile) {
-          response = await askQuestion(question, state.selectedFile);
-        }
+        // Use the first file from the selected chapter
+        const fileId = selectedChapterData.files[0].id;
+        const response = await askQuestionWithFileId(question, fileId);
 
         if (response && response.success) {
           setState((prev) => ({
@@ -204,13 +216,12 @@ const App: React.FC = () => {
             error,
           }));
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("API Error:", error);
 
         const enhancedError = ErrorService.processError(error, state.language);
         ErrorService.logError(enhancedError, {
-          selectedFile: state.selectedFile?.name,
-          selectedFileId: state.selectedFileId,
+          selectedChapter: state.selectedChapter,
           question: question.substring(0, 100), // Log first 100 chars only
         });
 
@@ -222,7 +233,7 @@ const App: React.FC = () => {
         }));
       }
     },
-    [state.selectedFile, state.selectedFileId, state.language]
+    [state.selectedChapter, state.fileLibrary.chapters, state.language]
   );
 
   // Clear error handler
@@ -438,14 +449,16 @@ const App: React.FC = () => {
         </header>
 
         <main className="app-main moodle-body">
-          {/* Left rail - File Library Panel */}
-          <aside className="moodle-left" aria-label="Biblioteca de arquivos">
-            <FileLibraryPanel
-              selectedFileId={state.selectedFileId}
-              onFileSelect={handleFileLibrarySelect}
+          {/* Left rail - Chapter Picker */}
+          <aside className="moodle-left" aria-label="Seletor de capítulos">
+            <ChapterPicker
+              chapters={state.fileLibrary.chapters}
+              selectedChapter={state.selectedChapter}
+              onChapterSelect={(chapterName) => 
+                setState(prev => ({ ...prev, selectedChapter: chapterName || 'general' }))
+              }
               userRole={user?.email?.includes('@iscte') ? 'teacher' : 'student'}
               isLoading={state.fileLibrary.isLoading}
-              error={state.fileLibrary.error}
             />
           </aside>
 
@@ -453,13 +466,14 @@ const App: React.FC = () => {
           <main className="moodle-center">
             <div className="chapter-header">
               <h2 className="chapter-title">
-                {state.selectedFileId ? 'Arquivo Selecionado' : 
-                 state.selectedFile ? 'Arquivo Carregado' : 
-                 'Selecione um arquivo'}
+                {state.selectedChapter && state.selectedChapter !== 'general' 
+                  ? `Capítulo: ${state.selectedChapter}` 
+                  : 'Assistente de IA - DIAM'}
               </h2>
-              {(state.selectedFile || state.selectedFileId) && (
+              {state.selectedChapter && state.selectedChapter !== 'general' && (
                 <p className="selected-file-indicator">
-                  {state.selectedFile ? state.selectedFile.name : 'Arquivo da biblioteca'}
+                  {state.fileLibrary.chapters
+                    .find(ch => ch.chapter === state.selectedChapter)?.files.length || 0} arquivos disponíveis
                 </p>
               )}
             </div>
@@ -507,23 +521,14 @@ const App: React.FC = () => {
             <section className="question-section">
               <QuestionInput
                 onSubmit={handleQuestionSubmit}
-                disabled={!state.selectedFile && !state.selectedFileId}
+                disabled={!state.selectedChapter || state.selectedChapter === 'general'}
                 isLoading={state.isLoading}
                 selectedFileName={
-                  state.selectedFileId 
-                    ? state.fileLibrary.chapters
-                        .flatMap(chapter => chapter.files)
-                        .find(file => file.id === state.selectedFileId)?.originalName
-                    : state.selectedFile?.name
-                }
-                selectedFileChapter={
-                  state.selectedFileId 
-                    ? state.fileLibrary.chapters
-                        .find(chapter => 
-                          chapter.files.some(file => file.id === state.selectedFileId)
-                        )?.chapter
+                  state.selectedChapter && state.selectedChapter !== 'general'
+                    ? `Capítulo: ${state.selectedChapter}`
                     : undefined
                 }
+                selectedFileChapter={state.selectedChapter !== 'general' ? state.selectedChapter : undefined}
               />
             </section>
 
@@ -540,7 +545,7 @@ const App: React.FC = () => {
             </section>
           </main>
 
-          {/* Right rail - concise course info */}
+          {/* Right rail - course info */}
           <aside className="moodle-right">
             <div className="info-card">
               <div className="info-title">Progresso do capítulo</div>

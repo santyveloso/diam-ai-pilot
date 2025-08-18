@@ -16,6 +16,7 @@
 @import './components/navigation.css';
 @import './components/dashboard.css';
 @import './components/file-library-panel.css';
+@import './components/chapter-picker.css';
 
 /* Utility Styles */
 @import './utilities/buttons.css';

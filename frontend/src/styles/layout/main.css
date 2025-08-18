@@ -58,6 +58,9 @@
   position: sticky;
   top: calc(6rem + 24px); /* Account for fixed header height */
   height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 
 .moodle-center {

@@ -123,3 +123,12 @@
   - Test chapter management operations (create, rename, delete)
   - Verify cross-component state synchronization
   - _Requirements: 1.1, 2.1, 4.1, 6.1_
+- [x] 16. Implement ChapterPicker component with stats and content views
+  - Create ChapterPicker component with chapter grid layout
+  - Add teacher stats view showing question counts, difficulty levels, and common topics
+  - Add student content view showing files within selected chapter
+  - Implement chapter selection with visual feedback and clear selection option
+  - Add responsive design and proper styling to match existing components
+  - Integrate ChapterPicker into both App and TeacherDashboard components
+  - Write comprehensive unit tests and integration tests for ChapterPicker
+  - _Requirements: 2.1, 2.2, 3.1, 3.2, 4.1_
